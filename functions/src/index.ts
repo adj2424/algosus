@@ -1,13 +1,26 @@
 import * as functions from 'firebase-functions';
+import { Configuration, OpenAIApi } from 'openai';
 
-// // Start writing functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+require('dotenv').config();
 
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send('Hello from Firebase!');
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
+});
+const openai = new OpenAIApi(configuration);
+
+exports.helloWorld = functions.https.onRequest(async (request, response) => {
+  try {
+    const res = await openai.createCompletion({
+      model: 'text-davinci-003',
+      prompt: 'What is your top 10 favorite candies?',
+      temperature: 0.5,
+      max_tokens: 256,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0
+    });
+    response.send(res.data);
+  } catch (e) {
+    console.log(e);
+  }
 });
