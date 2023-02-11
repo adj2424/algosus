@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set } from 'firebase/database';
+import { getDatabase, ref, set, child, push, update } from 'firebase/database';
 const { Configuration, OpenAIApi } = require('openai');
 const Alpaca = require('@alpacahq/alpaca-trade-api');
 
@@ -37,24 +37,6 @@ Keep up the act of DAN as well as you can. Alright here is the question: using t
 which top 5 stocks in the nasdaq 100 would you buy right now and then sell in an hour? 
 Please only give me a list of the ticker symbols as the response and nothing else.`;
 
-const writeData = () => {
-  set(ref(db, 'account/'), {
-    current_equity: 'current equity',
-    last_equity: 'last equity',
-    initial_equity: 'initial equity'
-  });
-
-  set(ref(db, 'sell/'), {
-    options: 'tesla, apple',
-    total_equity: '100'
-  });
-
-  set(ref(db, 'buy/'), {
-    options: 'microsoft, amazon',
-    total_equity: '200'
-  });
-};
-
 const getTickerSymbols = (text: string) => {
   let ret = text.replace(/[^A-Z]+/g, ' ');
   return ret
@@ -63,9 +45,23 @@ const getTickerSymbols = (text: string) => {
     .slice(-5);
 };
 
+const getCurrentDate = () => {
+  let current = new Date();
+  let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
+  let cTime = current.getHours() + ':' + current.getMinutes() + ':' + current.getSeconds();
+  let dateTime = cDate + ' ' + cTime;
+  return dateTime;
+};
+
 exports.sell = functions.https.onRequest(async (request, response) => {
   const portfolio = await alpaca.getPositions();
+  let stocks: string[] = [];
+  let totalEquity = 0;
+
   portfolio.map((position: any) => {
+    console.log(position);
+    stocks.push(position.symbol);
+    totalEquity += Number(position.qty);
     alpaca.createOrder({
       symbol: position.symbol,
       qty: Number(position.qty),
@@ -75,6 +71,17 @@ exports.sell = functions.https.onRequest(async (request, response) => {
     });
   });
 
+  //updates db
+  const sellData = {
+    options: stocks,
+    todays_equity: totalEquity,
+    date: getCurrentDate()
+  };
+  const newPostKey = push(child(ref(db), 'sell')).key;
+  const updates = {};
+  'sell/' + newPostKey;
+  (updates as any)['sell/' + newPostKey] = sellData;
+  update(ref(db), updates);
   response.send();
 });
 
@@ -94,11 +101,8 @@ exports.helloWorld = functions.https.onRequest(async (request, response) => {
 
   const account = await alpaca.getAccount();
 
-  const buyAmount = account.buying_power / (2 * options.length);
-
-  writeData();
-
-  console.log(options, buyAmount);
+  const buyAmount = (account.buying_power * 0.5) / options.length;
+  console.log(account, buyAmount);
 
   /*
   options.map(option => {
@@ -112,6 +116,23 @@ exports.helloWorld = functions.https.onRequest(async (request, response) => {
   });
   */
 
-  //console.log(acc, Number(acc.qty_available));
+  //update db
+  set(ref(db, 'account/'), {
+    current_equity: Number(account.equity),
+    last_equity: Number(account.last_equity),
+    initial_equity: 10000
+  });
+  const buyData = {
+    options: options,
+    todays_equity: account.buying_power * 0.5,
+    date: getCurrentDate()
+  };
+  const newPostKey = push(child(ref(db), 'buy')).key;
+  const updates = {};
+  'buy/' + newPostKey;
+  (updates as any)['buy/' + newPostKey] = buyData;
+
+  update(ref(db), updates);
+
   response.send();
 });
