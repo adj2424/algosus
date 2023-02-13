@@ -73,36 +73,19 @@ const Graph = () => {
       .text('money');
 
     // defines x scale
-
     const initialDate = new Date((timeline[0] as any).date);
     const currentDate = new Date((timeline[timeline.length - 1] as any).date);
-    const range = getDateDifference(initialDate, currentDate);
-
-    const clone = timeline[0] as any;
-
-    console.log(range);
-
-    let xScale = d3.scaleLinear().range([0, w]).domain([0, range]);
-    // .domain(
-    //   timeline.map((_d, i) => {
-    //     return String(i);
-    //   })
-
-    //.padding(0.2);
+    const rangeDate = getDateDifference(initialDate, currentDate);
+    let xScale = d3.scaleLinear().range([0, w]).domain([0, rangeDate]);
 
     // defines y scale
-    // let yMin = props.min === null ? 0 : props.min;
-    // let yMax = props.max;
-    // // checks for null
-    // if (yMax === null) {
-    //   yMax = Math.ceil(Math.max(...data.map(d => d[key2])) * 1.1);
-    // }
-    // // checks if yMin and yMax is valid
-    // if (yMin > yMax) {
-    //   yMin = 0;
-    //   yMax = Math.ceil(Math.max(...data.map(d => d[key2])) * 1.1);
-    // }
-    let yScale = d3.scaleLinear().range([h, 0]).domain([0, 2000]);
+    const yMin = Math.min(...(timeline as any).map((d: any) => d.equity));
+    const yMax = Math.max(...(timeline as any).map((d: any) => d.equity));
+    const padding = (yMax - yMin) * 0.1;
+    let yScale = d3
+      .scaleLinear()
+      .range([h, 0])
+      .domain([yMin - padding, yMax + padding]);
 
     //x axis properties
     g.append('g')
@@ -110,27 +93,25 @@ const Graph = () => {
       .call(d3.axisBottom(xScale));
 
     //y axis properties
-    //let yStep = props.step === null ? null : props.step;
-    //let tickValues: any[] = [];
-
     // default y step
-    //if (yStep === null) {
     g.append('g').call(d3.axisLeft(yScale).ticks(20));
-    //}
-    //
-    /*
-    else {
-      //creates all tick values in array
-      let i = yMin;
-      while (i <= yMax) {
-        tickValues = [...tickValues, i];
-        i += yStep;
-      }
-      g.append('g').call(d3.axisLeft(yScale).tickValues(tickValues).tickFormat(d3.format(',.1f')));
-    }
-    */
 
-    var line1 = d3
+    //toolTip for hover
+    let toolTip = (s: string, d: any) => {
+      let t = d3
+        .select('body')
+        .append('text')
+        .attr('id', `toolTip`)
+        .text(s)
+        .style('font-size', '12px')
+        .style('position', 'absolute')
+        .style('visibility', 'hidden')
+        .style('top', yScale(d.equity) + 110 + 'px')
+        .style('left', xScale(getDateDifference(initialDate, new Date(d.date))) + 10 + 'px');
+      return t;
+    };
+
+    var helper = d3
       .line()
       .y(function (d: any, i: any) {
         return yScale(d.equity);
@@ -138,13 +119,34 @@ const Graph = () => {
       .x(function (d: any, i) {
         return xScale(getDateDifference(initialDate, new Date(d.date)));
       });
-    //.interpolate('linear');
 
+    // line graph
     g.append('path')
-      .attr('d', line1(timeline))
+      .attr('d', helper(timeline))
       .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
+      .attr('stroke', '#2296F3')
       .attr('stroke-width', 1.5);
+
+    // adds circles to graph
+    g.selectAll('circle.line')
+      .data(timeline)
+      .enter()
+      .append('circle')
+      .style('fill', '#2296F3')
+      .style('opacity', 0)
+      .attr('cx', (d: any) => xScale(getDateDifference(initialDate, new Date(d.date))))
+      .attr('cy', (d: any) => yScale(d.equity))
+      .attr('r', 28)
+      .on('mouseover', (e, d: any) => {
+        const cur = new Date(d.date);
+        const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(cur);
+        const date = cur.getDate();
+        const year = cur.getFullYear();
+        toolTip(`$${Number(d.equity).toFixed(2)} ${month} ${date}, ${year}`, d).style('visibility', 'visible');
+      })
+      .on('mouseout', (e, d: any) => {
+        d3.select(`#toolTip`).remove();
+      });
   }, [timeline]);
 
   return (

@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, child, push, update, get } from 'firebase/database';
+import { getDatabase, ref, set, child, push, get } from 'firebase/database';
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require('openai');
 const Alpaca = require('@alpacahq/alpaca-trade-api');
@@ -48,16 +48,6 @@ const getTickerSymbols = (text: string) => {
     .slice(-5);
 };
 
-/*
-const getCurrentDate = () => {
-  let current = new Date();
-  let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
-  let cTime = current.getHours() + ':' + current.getMinutes() + ':' + current.getSeconds();
-  let dateTime = cDate + ' ' + cTime;
-  return dateTime;
-};
-*/
-
 const updateProfile = async () => {
   const account = await alpaca.getAccount();
   set(ref(db, 'account/'), {
@@ -70,19 +60,8 @@ const updateProfile = async () => {
     equity: Number(account.equity),
     date: new Date().toString()
   };
-
-  const myReft = push(ref(db, 'timeline/'));
-
-  set(myReft, equityData);
-
-  //set(ref(db, 'timeline/'), [equityData]);
-
-  /*
-  const newPostKey = push(child(ref(db), 'timeline')).key;
-  const updates = {};
-  (updates as any)['timeline/' + newPostKey] = equityData;
-  update(ref(db), updates);
-  */
+  const myRef = push(ref(db, 'timeline/'));
+  set(myRef, equityData);
 };
 
 exports.fetch = functions.https.onRequest(async (request, response) => {
@@ -97,23 +76,38 @@ exports.fetch = functions.https.onRequest(async (request, response) => {
 });
 
 exports.sell = functions.https.onRequest(async (request, response) => {
-  const portfolio = await alpaca.getPositions();
+  const portfolio: any[] = await alpaca.getPositions();
   let stocks: string[] = [];
   let totalEquity = 0;
 
-  portfolio.map((position: any) => {
-    console.log(position);
-    stocks.push(position.symbol);
-    totalEquity += Number(position.qty);
-    alpaca.createOrder({
-      symbol: position.symbol,
-      qty: Number(position.qty),
-      side: 'sell',
-      type: 'market',
-      time_in_force: 'day'
-    });
-  });
+  //console.log(portfolio[0]);
 
+  /*
+  await alpaca.createOrder({
+    symbol: String(portfolio[0].symbol),
+    qty: Number(portfolio[0].qty),
+    side: 'sell',
+    type: 'market',
+    time_in_force: 'day'
+  });
+  */
+
+  await Promise.all(
+    portfolio.map((position: any) => {
+      console.log(position.symbol, totalEquity);
+      stocks.push(position.symbol);
+      totalEquity += Number(position.qty);
+      alpaca.createOrder({
+        symbol: String(position.symbol),
+        qty: Number(position.qty),
+        side: 'sell',
+        type: 'market',
+        time_in_force: 'day'
+      });
+    })
+  );
+
+  /*
   //updates db
   await updateProfile();
   const sellData = {
@@ -121,11 +115,10 @@ exports.sell = functions.https.onRequest(async (request, response) => {
     todays_equity: totalEquity,
     date: new Date().toString()
   };
-  const newPostKey = push(child(ref(db), 'sell')).key;
-  const updates = {};
-  (updates as any)['sell/' + newPostKey] = sellData;
-  update(ref(db), updates);
-  response.send();
+  const myRef = push(ref(db, 'sell/'));
+  set(myRef, sellData);
+*/
+  response.send('nice');
 });
 
 exports.buy = functions.https.onRequest(async (request, response) => {
@@ -145,32 +138,29 @@ exports.buy = functions.https.onRequest(async (request, response) => {
   const account = await alpaca.getAccount();
 
   const buyAmount = (account.buying_power * 0.5) / options.length;
-  console.log(account, buyAmount);
-
-  /*
-  options.map(option => {
-    alpaca.createOrder({
-      symbol: option,
-      notional: '10',
-      side: 'buy',
-      type: 'market',
-      time_in_force: 'day'
-    });
-  });
-  */
+  let total = 0;
+  await Promise.all(
+    options.map(option => {
+      total += buyAmount;
+      alpaca.createOrder({
+        symbol: option,
+        notional: buyAmount,
+        side: 'buy',
+        type: 'market',
+        time_in_force: 'day'
+      });
+    })
+  );
 
   //update db
   await updateProfile();
-
   const buyData = {
     options: options,
-    todays_equity: account.buying_power * 0.5,
+    todays_equity: total,
     date: new Date().toString()
   };
-  const newPostKey = push(child(ref(db), 'buy')).key;
-  const updates = {};
-  (updates as any)['buy/' + newPostKey] = buyData;
-  update(ref(db), updates);
+  const myRef = push(ref(db, 'buy/'));
+  set(myRef, buyData);
 
-  response.send();
+  response.send('hi');
 });
