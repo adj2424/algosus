@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-const Graph = () => {
-  const [account, setAccount] = useState({});
-  const [buy, setBuy] = useState({});
-  const [sell, setSell] = useState({});
-  const [timeline, setTimeline] = useState([]);
+type props = {
+  timeline: any[];
+};
+
+const Graph = (props: props) => {
+  const { timeline } = props;
+  //const [timeline, setTimeline] = useState(props.timeline);
   const [rendered, setRendered] = useState(false);
   const margin = 100;
   let ref = useRef(null);
@@ -15,6 +17,7 @@ const Graph = () => {
     return Math.abs((date1.valueOf() - date2.valueOf()) / (1000 * 60 * 60 * 24));
   };
 
+  /*
   useEffect(() => {
     const fetchData = async () => {
       const url = 'http://127.0.0.1:5001/algosus/us-central1/fetch';
@@ -30,7 +33,7 @@ const Graph = () => {
     };
     fetchData();
   }, []);
-
+  */
   useEffect(() => {
     // skips first render
     if (!rendered) {

@@ -111,11 +111,12 @@ exports.sell = functions.https.onRequest(async (request, response) => {
   //updates db
   await updateProfile();
   const sellData = {
+    type: 'sell',
     options: stocks,
     todays_equity: totalEquity,
     date: new Date().toString()
   };
-  const myRef = push(ref(db, 'sell/'));
+  const myRef = push(ref(db, 'orders/'));
   set(myRef, sellData);
 */
   response.send('nice');
@@ -134,17 +135,18 @@ exports.buy = functions.https.onRequest(async (request, response) => {
 
   const text = res.data.choices[0].text;
   const options = getTickerSymbols(text);
-
   const account = await alpaca.getAccount();
+  const buyAmount = (account.buying_power * 0.8) / options.length;
 
-  const buyAmount = (account.buying_power * 0.5) / options.length;
+  console.log(account.buying_power);
+  console.log(account.buying_power / options.length);
   let total = 0;
   await Promise.all(
     options.map(option => {
       total += buyAmount;
       alpaca.createOrder({
         symbol: option,
-        notional: buyAmount,
+        notional: 0.1,
         side: 'buy',
         type: 'market',
         time_in_force: 'day'
@@ -152,15 +154,19 @@ exports.buy = functions.https.onRequest(async (request, response) => {
     })
   );
 
-  //update db
+  console.log(total);
   await updateProfile();
+  /*
+  //update db
+  
   const buyData = {
+    type: 'buy',
     options: options,
     todays_equity: total,
     date: new Date().toString()
   };
-  const myRef = push(ref(db, 'buy/'));
+  const myRef = push(ref(db, 'orders/'));
   set(myRef, buyData);
-
+*/
   response.send('hi');
 });
