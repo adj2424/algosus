@@ -50,13 +50,13 @@ const Table = (props: props) => {
 
   return (
     <>
-      <Box sx={{ height: 400, width: '100%' }}>
+      <Box sx={{ height: window.innerHeight * 0.9, width: '100%' }}>
         <DataGrid
           getRowId={(row: any) => row.symbol}
           rows={positions}
           columns={header}
-          pageSize={10}
-          rowsPerPageOptions={[10]}
+          pageSize={15}
+          rowsPerPageOptions={[15]}
         />
       </Box>
     </>

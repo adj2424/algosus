@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import './Graph.css';
 import * as d3 from 'd3';
 import GraphHeader from './GraphHeader';
 
@@ -12,6 +13,8 @@ const Graph = (props: props) => {
   const { timeline, setTimeline, original } = props;
   const [rendered, setRendered] = useState(false);
   const margin = 100;
+  let width = window.innerWidth * 0.6,
+    height = window.innerHeight * 0.6;
   let ref = useRef(null);
 
   //returns in days
@@ -27,10 +30,10 @@ const Graph = (props: props) => {
     }
     //clears during render
     d3.select('#graph').remove();
-    let svg = d3.select(ref.current);
+    let svg = d3.select(ref.current).append('svg').attr('width', width).attr('height', height);
     let g = svg
-      .append('g')
       .attr('id', 'graph')
+      .append('g')
       .attr('transform', 'translate(' + 50 + ',' + 50 + ')');
     let w: number = Number(svg.attr('width')) - margin;
     let h: number = Number(svg.attr('height')) - margin;
@@ -55,7 +58,7 @@ const Graph = (props: props) => {
 
     // sets y axis title
     g.append('text')
-      .attr('x', -(w - margin) / 2)
+      .attr('x', -h / 2)
       .attr('y', -40)
       .attr('transform', 'rotate(-90)')
       .style('text-anchor', 'middle')
@@ -138,12 +141,12 @@ const Graph = (props: props) => {
   }, [timeline]);
 
   return (
-    <>
-      <GraphHeader original={original} timeline={timeline} setTimeline={setTimeline} />
-      <div>
-        <svg ref={ref} height="500" width="600"></svg>
+    <div className="graph-container">
+      <div className="graph-header">
+        <GraphHeader original={original} timeline={timeline} setTimeline={setTimeline} />
       </div>
-    </>
+      <div ref={ref}></div>
+    </div>
   );
 };
 

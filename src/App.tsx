@@ -26,9 +26,13 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <Graph original={originalTimeline} timeline={timeline} setTimeline={setTimeline} />
-      <Table account={account} />
+    <div className="flex-container">
+      <div className="graph">
+        <Graph original={originalTimeline} timeline={timeline} setTimeline={setTimeline} />
+      </div>
+      <div className="table">
+        <Table account={account} />
+      </div>
     </div>
   );
 }

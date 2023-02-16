@@ -1,0 +1,9 @@
+.graph-container {
+  margin-left: 1vw;
+  margin-bottom: 1vh;
+}
+.graph-header {
+  position: relative;
+  top: 3vh;
+  margin-left: 1vw;
+}
