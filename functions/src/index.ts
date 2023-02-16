@@ -50,9 +50,12 @@ const getTickerSymbols = (text: string) => {
 
 const updateProfile = async () => {
   const account = await alpaca.getAccount();
+  const portfolio: any[] = await alpaca.getPositions();
+  console.log(portfolio[0]);
   set(ref(db, 'account/'), {
     current_equity: Number(account.equity),
     last_equity: Number(account.last_equity),
+    positions: portfolio,
     initial_equity: 10000
   });
 
@@ -81,16 +84,6 @@ exports.sell = functions.https.onRequest(async (request, response) => {
   let totalEquity = 0;
 
   //console.log(portfolio[0]);
-
-  /*
-  await alpaca.createOrder({
-    symbol: String(portfolio[0].symbol),
-    qty: Number(portfolio[0].qty),
-    side: 'sell',
-    type: 'market',
-    time_in_force: 'day'
-  });
-  */
 
   await Promise.all(
     portfolio.map((position: any) => {
@@ -156,9 +149,8 @@ exports.buy = functions.https.onRequest(async (request, response) => {
 
   console.log(total);
   await updateProfile();
-  /*
+
   //update db
-  
   const buyData = {
     type: 'buy',
     options: options,
@@ -166,7 +158,6 @@ exports.buy = functions.https.onRequest(async (request, response) => {
     date: new Date().toString()
   };
   const myRef = push(ref(db, 'orders/'));
-  set(myRef, buyData);
-*/
+  await set(myRef, buyData);
   response.send('hi');
 });

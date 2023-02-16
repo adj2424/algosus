@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import GraphHeader from './GraphHeader';
 
 type props = {
   timeline: any[];
+  setTimeline: any;
+  original: any[];
 };
 
 const Graph = (props: props) => {
-  const { timeline } = props;
-  //const [timeline, setTimeline] = useState(props.timeline);
+  const { timeline, setTimeline, original } = props;
   const [rendered, setRendered] = useState(false);
   const margin = 100;
   let ref = useRef(null);
@@ -17,23 +19,6 @@ const Graph = (props: props) => {
     return Math.abs((date1.valueOf() - date2.valueOf()) / (1000 * 60 * 60 * 24));
   };
 
-  /*
-  useEffect(() => {
-    const fetchData = async () => {
-      const url = 'http://127.0.0.1:5001/algosus/us-central1/fetch';
-      await fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          //setAccount(data.account);
-          //setBuy(data.buy);
-          //setSell(data.sell);
-          setTimeline(Object.values(data.timeline));
-        })
-        .catch(err => console.log(err));
-    };
-    fetchData();
-  }, []);
-  */
   useEffect(() => {
     // skips first render
     if (!rendered) {
@@ -51,12 +36,14 @@ const Graph = (props: props) => {
     let h: number = Number(svg.attr('height')) - margin;
 
     // sets graph title
+    /*
     g.append('text')
       .attr('x', w / 2)
       .attr('y', 30)
       .style('text-anchor', 'middle')
       .style('font-size', '20px')
       .text('ez');
+      */
 
     // sets x axis title
     g.append('text')
@@ -114,7 +101,7 @@ const Graph = (props: props) => {
       return t;
     };
 
-    var helper = d3
+    let helper = d3
       .line()
       .y(function (d: any, i: any) {
         return yScale(d.equity);
@@ -123,12 +110,10 @@ const Graph = (props: props) => {
         return xScale(getDateDifference(initialDate, new Date(d.date)));
       });
 
+    const profit = timeline[timeline.length - 1].equity - timeline[0].equity;
+    let color = profit > 0 ? '#4caf50' : '#ef5350';
     // line graph
-    g.append('path')
-      .attr('d', helper(timeline))
-      .attr('fill', 'none')
-      .attr('stroke', '#2296F3')
-      .attr('stroke-width', 1.5);
+    g.append('path').attr('d', helper(timeline)).attr('fill', 'none').attr('stroke', color).attr('stroke-width', 1.5);
 
     // adds circles to graph
     g.selectAll('circle.line')
@@ -154,7 +139,7 @@ const Graph = (props: props) => {
 
   return (
     <>
-      <p>graph</p>
+      <GraphHeader original={original} timeline={timeline} setTimeline={setTimeline} />
       <div>
         <svg ref={ref} height="500" width="600"></svg>
       </div>
