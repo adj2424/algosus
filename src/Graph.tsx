@@ -38,16 +38,6 @@ const Graph = (props: props) => {
     let w: number = Number(svg.attr('width')) - margin;
     let h: number = Number(svg.attr('height')) - margin;
 
-    // sets graph title
-    /*
-    g.append('text')
-      .attr('x', w / 2)
-      .attr('y', 30)
-      .style('text-anchor', 'middle')
-      .style('font-size', '20px')
-      .text('ez');
-      */
-
     // sets x axis title
     g.append('text')
       .attr('x', w / 2)
@@ -59,11 +49,11 @@ const Graph = (props: props) => {
     // sets y axis title
     g.append('text')
       .attr('x', -h / 2)
-      .attr('y', -40)
+      .attr('y', -41)
       .attr('transform', 'rotate(-90)')
       .style('text-anchor', 'middle')
       .style('font-size', '14px')
-      .text('money');
+      .text('equity');
 
     // defines x scale
     const initialDate = new Date((timeline[0] as any).date);
@@ -84,7 +74,6 @@ const Graph = (props: props) => {
     g.append('g')
       .attr('transform', 'translate(0,' + h + ')')
       .call(d3.axisBottom(xScale));
-
     //y axis properties
     // default y step
     g.append('g').call(d3.axisLeft(yScale).ticks(20));
@@ -99,8 +88,8 @@ const Graph = (props: props) => {
         .style('font-size', '12px')
         .style('position', 'absolute')
         .style('visibility', 'hidden')
-        .style('top', yScale(d.equity) + 110 + 'px')
-        .style('left', xScale(getDateDifference(initialDate, new Date(d.date))) + 10 + 'px');
+        .style('top', yScale(d.equity) + 80 + 'px')
+        .style('left', xScale(getDateDifference(initialDate, new Date(d.date))) + 20 + 'px');
       return t;
     };
 
@@ -123,7 +112,6 @@ const Graph = (props: props) => {
       .data(timeline)
       .enter()
       .append('circle')
-      .style('fill', '#2296F3')
       .style('opacity', 0)
       .attr('cx', (d: any) => xScale(getDateDifference(initialDate, new Date(d.date))))
       .attr('cy', (d: any) => yScale(d.equity))
