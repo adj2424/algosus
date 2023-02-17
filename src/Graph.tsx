@@ -76,7 +76,7 @@ const Graph = (props: props) => {
       .call(d3.axisBottom(xScale));
     //y axis properties
     // default y step
-    g.append('g').call(d3.axisLeft(yScale).ticks(20));
+    g.append('g').call(d3.axisLeft(yScale).ticks(10));
 
     //toolTip for hover
     let toolTip = (s: string, d: any) => {

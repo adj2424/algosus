@@ -53,6 +53,15 @@ const GraphHeader = (props: props) => {
       }
     }
     ranges = ranges.reverse();
+    // edge case for 1 day
+    if (ranges.length === 1) {
+      const temp = {
+        date: new Date().toString(),
+        equity: ranges[0].equity
+      };
+      ranges.push(temp);
+    }
+    console.log(ranges);
     setTimeline(ranges);
   };
 
@@ -64,7 +73,7 @@ const GraphHeader = (props: props) => {
     }
     setEquity(timeline[timeline.length - 1].equity);
     const p = timeline[timeline.length - 1].equity - timeline[0].equity;
-    let s = `$${p.toFixed(2)} (${((p / timeline[0].equity) * 100).toFixed(2)}%)`;
+    let s = `$${Math.abs(p).toFixed(2)} (${((Math.abs(p) / timeline[0].equity) * 100).toFixed(2)}%)`;
     if (p > 0) {
       s = `+${s}`;
       setColor('success');
