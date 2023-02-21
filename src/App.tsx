@@ -10,7 +10,7 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const url = 'https://us-central1-algosus.cloudfunctions.net/fetch';
+      const url = 'http://127.0.0.1:5001/algosus/us-central1/fetch';
       await fetch(url)
         .then(response => response.json())
         .then(data => {

@@ -82,27 +82,28 @@ const buy = async () => {
   const options = getTickerSymbols(text);
   const account = await alpaca.getAccount();
 
-  // buy 20% of equity because we are splitting for each day, and 10% padding
-  const buyAmount = (account.equity * 0.9 * 0.2) / options.length;
+  console.log(options, account);
+
+  // buy 20% of equity because we are splitting for each day, and 20% padding
+
+  const buyAmount = (account.equity * 0.8 * 0.2) / options.length;
 
   let total = 0;
-  await Promise.all(
-    options.map(option => {
-      total += buyAmount;
-      alpaca.createOrder({
-        symbol: option,
-        notional: 0.1,
-        side: 'buy',
-        type: 'market',
-        time_in_force: 'day'
-      });
-    })
-  );
+  options.map(async option => {
+    total += buyAmount;
+    await alpaca.createOrder({
+      symbol: option,
+      notional: buyAmount,
+      side: 'buy',
+      type: 'market',
+      time_in_force: 'day'
+    });
+  });
 
-  console.log(total);
+  console.log(total, buyAmount);
   await updateProfile();
-
-  //update db
+  //update buy db
+  /*
   const buyData = {
     type: 'buy',
     options: options,
@@ -111,6 +112,7 @@ const buy = async () => {
   };
   const myRef = push(ref(db, 'orders/'));
   await set(myRef, buyData);
+  */
 };
 
 const sell = async () => {
@@ -132,6 +134,7 @@ const sell = async () => {
       });
     })
   );
+  await updateProfile();
 };
 
 exports.fetch = functions.https.onRequest(async (request, response) => {
@@ -150,6 +153,20 @@ exports.fetch = functions.https.onRequest(async (request, response) => {
   });
 });
 
+exports.sell = functions.https.onRequest(async (request, response) => {
+  cors()(request, response, async () => {
+    await sell();
+    response.send('sell done');
+  });
+});
+
+exports.buy = functions.https.onRequest(async (request, response) => {
+  cors()(request, response, async () => {
+    await buy();
+    response.send('buy done');
+  });
+});
+
 // runs friday at 3:50pm
 exports.sell = functions.pubsub
   .schedule('50 15 * * 5')
@@ -159,7 +176,7 @@ exports.sell = functions.pubsub
     return null;
   });
 
-// runs monday-friday at 9:31am
+// runs monday-thursday at 9:31am
 exports.buy = functions.pubsub
   .schedule('31 9 * * 1-5')
   .timeZone('America/New_York')

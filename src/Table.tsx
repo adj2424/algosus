@@ -44,7 +44,7 @@ const Table = (props: props) => {
     {
       field: 'profit',
       headerName: 'profit',
-      width: 600
+      width: 150
     }
   ];
 
