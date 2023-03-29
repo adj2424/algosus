@@ -13,6 +13,12 @@
     },
     "categories": {
       "function": {
+        "fetchData": {
+          "deploymentBucketName": "amplify-algosus-dev-225121-deployment",
+          "s3Key": "amplify-builds/fetchData-5432636c344b48597a67-build.zip"
+        }
+      },
+      "api": {
         "fetchData": {}
       }
     }

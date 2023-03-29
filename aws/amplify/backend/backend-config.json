@@ -1,9 +1,43 @@
 {
+  "api": {
+    "fetchData": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "fetchData"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
   "function": {
     "fetchData": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_fetchData_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "fetchData"
+        }
+      ]
+    },
+    "AMPLIFY_function_fetchData_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "fetchData"
+        }
+      ]
     }
   }
 }
