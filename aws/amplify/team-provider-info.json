@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-algosus-dev-225121-authRole",
+      "UnauthRoleArn": "arn:aws:iam::809027720991:role/amplify-algosus-dev-225121-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::809027720991:role/amplify-algosus-dev-225121-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-algosus-dev-225121-deployment",
+      "UnauthRoleName": "amplify-algosus-dev-225121-unauthRole",
+      "StackName": "amplify-algosus-dev-225121",
+      "StackId": "arn:aws:cloudformation:us-east-1:809027720991:stack/amplify-algosus-dev-225121/97f79dc0-cddc-11ed-9746-0a8e9bfd9657",
+      "AmplifyAppId": "d2bn8rg1hkygya"
+    },
+    "categories": {
+      "function": {
+        "fetchData": {}
+      }
+    }
+  }
+}
