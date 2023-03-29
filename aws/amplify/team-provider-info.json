@@ -13,13 +13,22 @@
     },
     "categories": {
       "function": {
-        "fetchData": {
+        "buyStock": {
           "deploymentBucketName": "amplify-algosus-dev-225121-deployment",
-          "s3Key": "amplify-builds/fetchData-71397243306c4b303154-build.zip"
-        }
+          "s3Key": "amplify-builds/buyStock-785355466b4a4a783375-build.zip"
+        },
+        "sellStock": {
+          "deploymentBucketName": "amplify-algosus-dev-225121-deployment",
+          "s3Key": "amplify-builds/sellStock-4e427a63654b55556446-build.zip"
+        },
+        "fetchData": {}
       },
       "api": {
-        "fetchData": {}
+        "buyStock": {},
+        "sellStock": {}
+      },
+      "storage": {
+        "algosus": {}
       }
     }
   }

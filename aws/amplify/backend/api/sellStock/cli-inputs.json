@@ -1,9 +1,9 @@
 {
   "version": 1,
   "paths": {
-    "/fetch": {
-      "name": "/fetch",
-      "lambdaFunction": "fetchData",
+    "/sell": {
+      "name": "/sell",
+      "lambdaFunction": "sellStock",
       "permissions": {
         "setting": "open"
       }

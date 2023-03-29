@@ -1,6 +1,6 @@
 {
   "api": {
-    "fetchData": {
+    "buyStock": {
       "dependsOn": [
         {
           "attributes": [
@@ -8,7 +8,21 @@
             "Arn"
           ],
           "category": "function",
-          "resourceName": "fetchData"
+          "resourceName": "buyStock"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
+    "sellStock": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "sellStock"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -16,28 +30,60 @@
     }
   },
   "function": {
+    "buyStock": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "fetchData": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "sellStock": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
   },
   "parameters": {
-    "AMPLIFY_function_fetchData_deploymentBucketName": {
+    "AMPLIFY_function_buyStock_deploymentBucketName": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "fetchData"
+          "resourceName": "buyStock"
         }
       ]
     },
-    "AMPLIFY_function_fetchData_s3Key": {
+    "AMPLIFY_function_buyStock_s3Key": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "fetchData"
+          "resourceName": "buyStock"
         }
       ]
+    },
+    "AMPLIFY_function_sellStock_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "sellStock"
+        }
+      ]
+    },
+    "AMPLIFY_function_sellStock_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "sellStock"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "algosus": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
     }
   }
 }

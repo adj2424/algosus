@@ -1,0 +1,10 @@
+{
+  "resourceName": "algosus",
+  "tableName": "algosus",
+  "partitionKey": {
+    "fieldName": "id",
+    "fieldType": "number"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}
