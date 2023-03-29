@@ -9,7 +9,9 @@ function App() {
 	const [account, setAccount] = useState({});
 
 	const test = async () => {
-		await fetch('');
+		await fetch('https://dvjl0e8mw9.execute-api.us-east-1.amazonaws.com/dev/fetch')
+			.then(res => res.json())
+			.then(data => console.log(data));
 	};
 
 	useEffect(() => {
