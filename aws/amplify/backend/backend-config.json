@@ -14,6 +14,20 @@
       "providerPlugin": "awscloudformation",
       "service": "API Gateway"
     },
+    "fetchData": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "fetchData"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
     "sellStock": {
       "dependsOn": [
         {
@@ -60,6 +74,22 @@
         {
           "category": "function",
           "resourceName": "buyStock"
+        }
+      ]
+    },
+    "AMPLIFY_function_fetchData_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "fetchData"
+        }
+      ]
+    },
+    "AMPLIFY_function_fetchData_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "fetchData"
         }
       ]
     },

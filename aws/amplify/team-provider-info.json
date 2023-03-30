@@ -21,11 +21,15 @@
           "deploymentBucketName": "amplify-algosus-dev-225121-deployment",
           "s3Key": "amplify-builds/sellStock-4e427a63654b55556446-build.zip"
         },
-        "fetchData": {}
+        "fetchData": {
+          "deploymentBucketName": "amplify-algosus-dev-225121-deployment",
+          "s3Key": "amplify-builds/fetchData-4d4a7478714370522f2b-build.zip"
+        }
       },
       "api": {
         "buyStock": {},
-        "sellStock": {}
+        "sellStock": {},
+        "fetchData": {}
       },
       "storage": {
         "algosus": {}
