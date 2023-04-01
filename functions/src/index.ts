@@ -82,7 +82,7 @@ const buy = async () => {
 	const options = getTickerSymbols(text);
 	const account = await alpaca.getAccount();
 
-	console.log(options, account);
+	//console.log(options, account);
 
 	// buy 20% of equity because we are splitting for each day, and 20% padding
 
@@ -168,19 +168,19 @@ exports.buy = functions.https.onRequest(async (request, response) => {
 });
 
 // runs friday at 3:50pm
-exports.sell = functions.pubsub
-	.schedule('50 15 * * 5')
-	.timeZone('America/New_York')
-	.onRun(async () => {
-		await sell();
-		return null;
-	});
+// exports.sell = functions.pubsub
+// 	.schedule('50 15 * * 5')
+// 	.timeZone('America/New_York')
+// 	.onRun(async () => {
+// 		await sell();
+// 		return null;
+// 	});
 
 // runs monday-thursday at 9:31am
-exports.buy = functions.pubsub
-	.schedule('31 9 * * 1-5')
-	.timeZone('America/New_York')
-	.onRun(async () => {
-		await buy();
-		return null;
-	});
+// exports.buy = functions.pubsub
+// 	.schedule('31 9 * * 1-5')
+// 	.timeZone('America/New_York')
+// 	.onRun(async () => {
+// 		await buy();
+// 		return null;
+// 	});
