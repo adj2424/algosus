@@ -84,9 +84,8 @@ const buy = async () => {
 
 	//console.log(options, account);
 
-	// buy 20% of equity because we are splitting for each day, and 20% padding
-
-	const buyAmount = (account.equity * 0.8 * 0.2) / options.length;
+	// buy 80% equity in 5 stocks and 20% padding
+	const buyAmount = (account.equity * 0.8) / options.length;
 
 	let total = 0;
 	options.map(async option => {
@@ -153,6 +152,15 @@ exports.fetch = functions.https.onRequest(async (request, response) => {
 	});
 });
 
+// force update profile
+exports.update = functions.https.onRequest(async (request, response) => {
+	cors()(request, response, async () => {
+		await updateProfile();
+		response.send('update completed');
+	});
+});
+
+/*
 exports.sell = functions.https.onRequest(async (request, response) => {
 	cors()(request, response, async () => {
 		await sell();
@@ -166,21 +174,22 @@ exports.buy = functions.https.onRequest(async (request, response) => {
 		response.send('buy done');
 	});
 });
+*/
 
-// runs friday at 3:50pm
-// exports.sell = functions.pubsub
-// 	.schedule('50 15 * * 5')
-// 	.timeZone('America/New_York')
-// 	.onRun(async () => {
-// 		await sell();
-// 		return null;
-// 	});
+//runs friday at 3:50pm
+exports.sell = functions.pubsub
+	.schedule('50 15 * * 5')
+	.timeZone('America/New_York')
+	.onRun(async () => {
+		await sell();
+		return null;
+	});
 
-// runs monday-thursday at 9:31am
-// exports.buy = functions.pubsub
-// 	.schedule('31 9 * * 1-5')
-// 	.timeZone('America/New_York')
-// 	.onRun(async () => {
-// 		await buy();
-// 		return null;
-// 	});
+//scheduled function runs monday at 9:31am
+exports.buy = functions.pubsub
+	.schedule('31 9 * * 1')
+	.timeZone('America/New_York')
+	.onRun(async () => {
+		await buy();
+		return null;
+	});
