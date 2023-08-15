@@ -10,13 +10,13 @@ function App() {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url = 'http://127.0.0.1:5001/algosus/us-central1/fetch';
+			const local = 'http://127.0.0.1:5001/algosus/us-central1/fetch';
+			const production = 'https://us-central1-algosus.cloudfunctions.net/fetch';
+			const url = production;
 			await fetch(url)
 				.then(response => response.json())
 				.then(data => {
 					setAccount(data.account);
-					//setBuy(data.buy);
-					//setSell(data.sell);
 					setTimeline(Object.values(data.timeline));
 					setOriginalTimeline(Object.values(data.timeline));
 				})
@@ -38,3 +38,4 @@ function App() {
 }
 
 export default App;
+
