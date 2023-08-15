@@ -173,19 +173,29 @@ exports.fetch = functions.https.onRequest(async (request, response) => {
 	});
 });
 
-// exports.sell = functions.https.onRequest(async (request, response) => {
-// 	cors()(request, response, async () => {
-// 		await sell();
-// 		response.send('sell done');
-// 	});
-// });
+// force update profile
+exports.update = functions.https.onRequest(async (request, response) => {
+	cors()(request, response, async () => {
+		await updateProfile();
+		response.send('update completed');
+	});
+});
 
-// exports.buy = functions.https.onRequest(async (request, response) => {
-// 	cors()(request, response, async () => {
-// 		await buy();
-// 		return response.send('buy done');
-// 	});
-// });
+/*
+exports.sell = functions.https.onRequest(async (request, response) => {
+	cors()(request, response, async () => {
+		await sell();
+		response.send('sell done');
+	});
+});
+
+exports.buy = functions.https.onRequest(async (request, response) => {
+	cors()(request, response, async () => {
+		await buy();
+		response.send('buy done');
+	});
+});
+*/
 
 //runs friday at 3:50pm
 exports.sell = functions.pubsub
@@ -196,12 +206,11 @@ exports.sell = functions.pubsub
 		return null;
 	});
 
-//scheduled function runs monday at 11:00am
+//scheduled function runs monday at 10:00am
 exports.buy = functions.pubsub
-	.schedule('0 11 * * 1')
+	.schedule('0 10 * * 1')
 	.timeZone('America/New_York')
 	.onRun(async () => {
 		await buy();
 		return null;
 	});
-

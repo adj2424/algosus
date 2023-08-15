@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import Graph from './Graph';
 import Table from './Table';
@@ -38,4 +38,3 @@ function App() {
 }
 
 export default App;
-
