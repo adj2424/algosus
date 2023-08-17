@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Graph.css';
 import * as d3 from 'd3';
 import GraphHeader from './GraphHeader';
@@ -13,8 +13,8 @@ const Graph = (props: props) => {
 	const { timeline, setTimeline, original } = props;
 	const [rendered, setRendered] = useState(false);
 	const margin = 100;
-	let width = window.innerWidth * 0.6,
-		height = window.innerHeight * 0.6;
+	let width = window.innerWidth * 0.54,
+		height = window.innerHeight * 0.525;
 	let ref = useRef(null);
 
 	//returns in days
@@ -34,7 +34,7 @@ const Graph = (props: props) => {
 		let g = svg
 			.attr('id', 'graph')
 			.append('g')
-			.attr('transform', 'translate(' + 50 + ',' + 50 + ')');
+			.attr('transform', 'translate(' + 80 + ',' + 50 + ')');
 		let w: number = Number(svg.attr('width')) - margin;
 		let h: number = Number(svg.attr('height')) - margin;
 
@@ -44,7 +44,7 @@ const Graph = (props: props) => {
 			.attr('y', h + 40)
 			.style('text-anchor', 'middle')
 			.style('font-size', '14px')
-			.text('date');
+			.text('DATE');
 
 		// sets y axis title
 		g.append('text')
@@ -53,7 +53,7 @@ const Graph = (props: props) => {
 			.attr('transform', 'rotate(-90)')
 			.style('text-anchor', 'middle')
 			.style('font-size', '14px')
-			.text('equity');
+			.text('EQUITY');
 
 		// defines x scale
 		const initialDate = new Date((timeline[0] as any).date);
@@ -88,8 +88,9 @@ const Graph = (props: props) => {
 				.style('font-size', '12px')
 				.style('position', 'absolute')
 				.style('visibility', 'hidden')
-				.style('top', yScale(d.equity) + 80 + 'px')
-				.style('left', xScale(getDateDifference(initialDate, new Date(d.date))) + 20 + 'px');
+				.style('pointer-events', 'none')
+				.style('top', yScale(d.equity) + 55 + 'px')
+				.style('left', xScale(getDateDifference(initialDate, new Date(d.date))) + 80 + 'px');
 			return t;
 		};
 
@@ -103,11 +104,12 @@ const Graph = (props: props) => {
 			});
 
 		const profit = timeline[timeline.length - 1].equity - timeline[0].equity;
-		let color = profit > 0 ? '#4caf50' : '#ef5350';
+		let color = profit >= 0 ? '#4caf50' : '#ef5350';
 		// line graph
 		g.append('path').attr('d', helper(timeline)).attr('fill', 'none').attr('stroke', color).attr('stroke-width', 1.5);
 
-		// adds circles to graph
+		// adds hidden circles to graph
+		// this is to make tooltip hover easier as user can hover over the entire circle
 		g.selectAll('circle.line')
 			.data(timeline)
 			.enter()
@@ -115,7 +117,7 @@ const Graph = (props: props) => {
 			.style('opacity', 0)
 			.attr('cx', (d: any) => xScale(getDateDifference(initialDate, new Date(d.date))))
 			.attr('cy', (d: any) => yScale(d.equity))
-			.attr('r', 28)
+			.attr('r', 30)
 			.on('mouseover', (e, d: any) => {
 				const cur = new Date(d.date);
 				const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(cur);

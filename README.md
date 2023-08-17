@@ -1,10 +1,10 @@
 # algosus
 
-Stock trading bot for educational purposes and fun. Built with React, TypeScript, D3.js, Material UI and uses Google Cloud Platform (GCP) as the BaaS. Track its live performance [here](https://google.com).
+Stock trading bot for educational purposes and fun. Built with React, TypeScript, D3.js, Material UI and uses Google Cloud Platform (GCP) as the BaaS. Track its live performance [here](https://algosus.vercel.app/).
 
 ## Features
 
-- The AI trading bot uses the ChatGPT API to generate optimal stocks to buy.
+- The AI trading bot uses the ChatGPT API to generate optimal stocks to buy and sell.
 - It leverages the Alpaca API for executing trades in the market.
 - Performs scheduled cloud functions in GCP to run the trading bot at specific times.
 - Simple user interface to view the trading data and its portfolio.

@@ -48,6 +48,11 @@ const getTickerSymbols = (text: string) => {
 	return temp.length > 5 ? temp.slice(-5) : temp;
 };
 
+//returns in days
+const getDateDifference = (date1: Date, date2: Date) => {
+	return Math.abs((date1.valueOf() - date2.valueOf()) / (1000 * 60 * 60 * 24));
+};
+
 const updateProfile = async () => {
 	const account = await alpaca.getAccount();
 	const portfolio: any[] = await alpaca.getPositions();
@@ -124,7 +129,6 @@ const sell = async () => {
 	// const portfolio: any[] = await alpaca.getPositions();
 	// let stocks: string[] = [];
 	// let totalEquity = 0;
-	// alpaca.cancelAllOrders();
 	// await Promise.all(
 	// 	portfolio.map((position: any) => {
 	// 		console.log(position.symbol, totalEquity);
@@ -160,14 +164,25 @@ exports.update = functions.https.onRequest(async (request, response) => {
 
 exports.fetch = functions.https.onRequest(async (request, response) => {
 	cors()(request, response, async () => {
-		const date = new Date();
-		// in trading hours 9:30-4:00 to update profile
-		if (date.getDay() !== 0 && date.getDay() !== 6 && date.getHours() >= 9 && date.getHours() <= 16) {
-			await updateProfile();
-		}
 		// return all data
 		const snapshot = await get(child(ref(db), '/'));
 		if (snapshot.exists()) {
+			const latestDate = (Object.values(snapshot.val().timeline) as any).slice(-1)[0].date;
+			const date = new Date();
+			// check if update is needed
+			// if in trading hours 9:30-4:00
+			if (date.getDay() !== 0 && date.getDay() !== 6 && date.getHours() >= 9 && date.getHours() <= 16) {
+				// update if 5 mins have passed
+				if (getDateDifference(date, new Date(latestDate)) >= 0.00347222) {
+					await updateProfile();
+				}
+			}
+			// update if 12hrs have passed
+			else {
+				if (getDateDifference(date, new Date(latestDate)) >= 0.5) {
+					await updateProfile();
+				}
+			}
 			response.send(snapshot.val());
 		}
 	});

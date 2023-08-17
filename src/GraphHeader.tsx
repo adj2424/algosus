@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
@@ -89,7 +89,7 @@ const GraphHeader = (props: props) => {
 		setEquity(timeline[timeline.length - 1].equity);
 		const p = timeline[timeline.length - 1].equity - timeline[0].equity;
 		let s = `$${Math.abs(p).toFixed(2)} (${((Math.abs(p) / timeline[0].equity) * 100).toFixed(2)}%)`;
-		if (p > 0) {
+		if (p >= 0) {
 			s = `+${s}`;
 			setColor('success');
 		}

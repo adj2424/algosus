@@ -33,24 +33,24 @@ const Table = (props: props) => {
 		},
 		{
 			field: 'current_price',
-			headerName: 'price',
+			headerName: 'Price',
 			width: 120
 		},
 		{
 			field: 'qty',
-			headerName: 'quantity',
+			headerName: 'Shares',
 			width: 120
 		},
 		{
 			field: 'profit',
-			headerName: 'profit',
+			headerName: 'Profit',
 			width: 120
 		}
 	];
 
 	return (
 		<>
-			<Box sx={{ height: window.innerHeight * 0.9, width: '100%' }}>
+			<Box sx={{ height: window.innerHeight * 0.7, width: '100%' }}>
 				<DataGrid
 					getRowId={(row: any) => row.symbol}
 					rows={positions}
