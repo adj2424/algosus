@@ -7,14 +7,15 @@ type props = {
 	timeline: any[];
 	setTimeline: any;
 	original: any[];
+	width: number;
+	height: number;
 };
 
 const Graph = (props: props) => {
-	const { timeline, setTimeline, original } = props;
+	const { timeline, setTimeline, original, width, height } = props;
+	console.log(width, height);
 	const [rendered, setRendered] = useState(false);
 	const margin = 100;
-	let width = window.innerWidth * 0.54,
-		height = window.innerHeight * 0.525;
 	let ref = useRef(null);
 
 	//returns in days
@@ -30,7 +31,11 @@ const Graph = (props: props) => {
 		}
 		//clears during render
 		d3.select('#graph').remove();
-		let svg = d3.select(ref.current).append('svg').attr('width', width).attr('height', height);
+		let svg = d3
+			.select(ref.current)
+			.append('svg')
+			.attr('width', width * 0.95)
+			.attr('height', height);
 		let g = svg
 			.attr('id', 'graph')
 			.append('g')

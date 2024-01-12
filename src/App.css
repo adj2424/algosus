@@ -1,17 +1,20 @@
 .flex-container {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 }
 .graph {
 	flex: 2;
-	margin-top: 1vw;
-	margin-left: 3vw;
-	margin-right: 3vw;
-	//background-color: aqua;
+	margin: 1.5vw;
+	min-width: 400px;
 }
 .table {
-	flex: 1.2;
-	margin-top: 1vw;
-	margin-right: 3vw;
-	//background-color: antiquewhite;
+	flex: 1;
+	margin: 1.5vw;
+	min-width: 450px;
+}
+
+.links {
+	display: flex;
+	flex-wrap: wrap;
 }

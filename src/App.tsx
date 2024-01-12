@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import Graph from './Graph';
 import Table from './Table';
@@ -16,6 +16,9 @@ function App() {
 	const [originalTimeline, setOriginalTimeline] = useState([]);
 	const [timeline, setTimeline] = useState([]);
 	const [account, setAccount] = useState({});
+	const [cardHeight, setCardHeight] = useState(0);
+	const [cardWidth, setCardWidth] = useState(0);
+	const ref = useRef(null);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -32,13 +35,21 @@ function App() {
 				.catch(err => console.log(err));
 		};
 		fetchData();
+		setCardWidth((ref.current as any).offsetWidth);
+		setCardHeight((ref.current as any).offsetHeight);
 	}, []);
 
 	return (
 		<>
 			<div className="flex-container">
-				<Card className="graph" variant="outlined">
-					<Graph original={originalTimeline} timeline={timeline} setTimeline={setTimeline} />
+				<Card className="graph" variant="outlined" ref={ref}>
+					<Graph
+						original={originalTimeline}
+						timeline={timeline}
+						setTimeline={setTimeline}
+						width={cardWidth}
+						height={cardHeight}
+					/>
 					<Divider variant="middle" />
 					<CardContent>
 						<Typography gutterBottom variant="h5" component="div">
@@ -58,7 +69,7 @@ function App() {
 							</Typography>
 						</ul>
 					</CardContent>
-					<CardActions>
+					<CardActions className="links">
 						<Button
 							onClick={() => {
 								window.open('https://github.com/adj2424/algosus', '_blank');

@@ -4,6 +4,7 @@ import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import './GraphHeader.css';
 
 type props = {
 	timeline: any[];
@@ -102,7 +103,7 @@ const GraphHeader = (props: props) => {
 	}, [timeline]);
 
 	return (
-		<Stack direction="row" spacing={1}>
+		<Stack className="graphHeader" direction="row" spacing={1}>
 			<Chip label={`$${equity.toFixed(2)}`} onClick={() => {}} />
 			{color === 'success' ? (
 				<Chip label={profit} variant="outlined" color="success" onClick={() => {}} />

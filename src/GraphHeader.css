@@ -1,0 +1,5 @@
+.graphHeader {
+	display: flex;
+	flex-wrap: wrap;
+	min-width: 200px;
+}
