@@ -1,11 +1,13 @@
-import * as functions from 'firebase-functions';
+import { onRequest } from 'firebase-functions/v2/https';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, child, push, get } from 'firebase/database';
-const cors = require('cors');
-const OpenAIApi = require('openai');
-const Alpaca = require('@alpacahq/alpaca-trade-api');
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import OpenAI from 'openai';
+import Alpaca from '@alpacahq/alpaca-trade-api';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
-require('dotenv').config();
+dotenv.config();
 
 type position = {
   asset_class: string;
@@ -55,7 +57,7 @@ const firebase = initializeApp({
   appId: '1:856522899414:web:3e09c1367f18bf0cc0ae77'
 });
 const db = getDatabase(firebase);
-const openai = new OpenAIApi({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 const alpaca = new Alpaca({
@@ -171,37 +173,20 @@ const buy = async () => {
   await updateProfile();
 };
 
-// const sell = async () => {
-//   // const portfolio: any[] = await alpaca.getPositions();
-//   // let stocks: string[] = [];
-//   // let totalEquity = 0;
-//   // await Promise.all(
-//   // 	portfolio.map((position: any) => {
-//   // 		console.log(position.symbol, totalEquity);
-//   // 		stocks.push(position.symbol);
-//   // 		totalEquity += Number(position.qty);
-//   // 		alpaca.createOrder({
-//   // 			symbol: String(position.symbol),
-//   // 			qty: Number(position.qty),
-//   // 			side: 'sell',
-//   // 			type: 'market',
-//   // 			time_in_force: 'day'
-//   // 		});
-//   // 	})
-//   // );
-//   await fetch(`https://paper-api.alpaca.markets/v2/positions`, {
-//     method: 'DELETE',
-//     headers: {
-//       Accept: 'application/json',
-//       'APCA-API-KEY-ID': process.env.ALPACA_API_KEY!,
-//       'APCA-API-SECRET-KEY': process.env.ALPACA_SECRET_KEY!
-//     }
-//   });
-//   await updateProfile();
-// };
+const sell = async () => {
+  await fetch(`https://paper-api.alpaca.markets/v2/positions`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      'APCA-API-KEY-ID': process.env.ALPACA_API_KEY!,
+      'APCA-API-SECRET-KEY': process.env.ALPACA_SECRET_KEY!
+    }
+  });
+  await updateProfile();
+};
 
 // force update profile during testing or something
-exports.update = functions.https.onRequest(async (request, response) => {
+export const update = onRequest(async (request, response) => {
   cors()(request, response, async () => {
     try {
       await updateProfile();
@@ -214,7 +199,7 @@ exports.update = functions.https.onRequest(async (request, response) => {
   });
 });
 
-exports.fetch = functions.https.onRequest(async (request, response) => {
+export const getData = onRequest(async (request, response) => {
   cors()(request, response, async () => {
     // return all data
     const snapshot = await get(child(ref(db), '/'));
@@ -258,22 +243,14 @@ exports.fetch = functions.https.onRequest(async (request, response) => {
   });
 });
 
-// force update profile
-exports.update = functions.https.onRequest(async (request, response) => {
+export const sellFunc = onRequest(async (request, response) => {
   cors()(request, response, async () => {
-    await updateProfile();
-    response.send('update completed');
+    await sell();
+    response.send('sell done');
   });
 });
 
-// exports.sell = functions.https.onRequest(async (request, response) => {
-//   cors()(request, response, async () => {
-//     await sell();
-//     response.send('sell done');
-//   });
-// });
-
-exports.buyFunc = functions.https.onRequest(async (request, response) => {
+export const buyFunc = onRequest(async (request, response) => {
   cors()(request, response, async () => {
     await buy();
     response.send('buy done');
@@ -281,19 +258,25 @@ exports.buyFunc = functions.https.onRequest(async (request, response) => {
 });
 
 //runs friday at 3:50pm
-// exports.sellFunc = functions.pubsub
-//   .schedule('50 15 * * 5')
-//   .timeZone('America/New_York')
-//   .onRun(async () => {
-//     await sell();
-//     return null;
-//   });
+exports.sell = onSchedule(
+  {
+    schedule: '50 15 * * 5',
+    timeZone: 'America/New_York'
+  },
+  async () => {
+    await sell();
+  }
+);
 
-// //scheduled function runs monday at 10:00am
-// exports.buy = functions.pubsub
-//   .schedule('0 10 * * 1')
-//   .timeZone('America/New_York')
-//   .onRun(async () => {
-//     await buy();
-//     return null;
-//   });
+//scheduled function runs monday at 10:00am
+
+exports.buy = onSchedule(
+  {
+    schedule: '0 10 * * 1',
+    timeZone: 'America/New_York'
+  },
+  async () => {
+    await buy();
+  }
+);
+
