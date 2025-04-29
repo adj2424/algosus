@@ -10,6 +10,5 @@ export const buy = BuyFunc;
 export const sell = SellFunc;
 
 // scheduled functions
-exports.buy = ScheduleBuy;
-exports.sell = ScheduleSell;
-
+exports.scheduleBuy = ScheduleBuy;
+exports.scheduleSell = ScheduleSell;

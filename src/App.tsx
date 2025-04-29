@@ -24,7 +24,7 @@ function App() {
     const fetchData = async () => {
       const local = 'http://127.0.0.1:5001/algosus/us-central1/getData';
       const production = 'https://us-central1-algosus.cloudfunctions.net/getData';
-      const url = local;
+      const url = production;
       await fetch(url)
         .then(response => response.json())
         .then(data => {
