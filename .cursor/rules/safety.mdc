@@ -1,0 +1,39 @@
+---
+description: Safety constraints for algosus — secrets, trading, and deploy boundaries
+globs:
+  - functions/**/*
+  - src/**/*
+alwaysApply: false
+---
+
+# Safety constraints
+
+## Secrets
+
+- Never commit `.env` or real API keys
+- `.env` is gitignored; use `functions/.env.example` as the template
+- Do not hardcode keys in source files
+
+## Trading
+
+- Alpaca is configured for **paper trading only** (`paper: true` in `config.ts`)
+- Do not change buy/sell schedules, OpenAI prompts, or trading logic without explicit user request
+- Do not switch to live trading
+
+## Frontend URLs
+
+- `src/App.tsx` defaults to the **production** Cloud Function URL
+- Local emulator URL is documented but requires manually changing `const url = production` to `local`
+- Do not point production deploys at localhost
+
+## Deploy
+
+- Functions deploy via `npm --prefix functions run deploy` (Firebase project: `algosus`)
+- Frontend: Vercel project exists but **git auto-deploy is off** (`vercel.json` sets `git.deploymentEnabled: false`). Pushes to `main` do not update production until you deploy manually from the Vercel dashboard or CLI.
+- Do not modify `firebase.json` or `.firebaserc` without explicit request
+
+## Scope discipline
+
+- Dependency upgrades require an explicit request or an approved plan (e.g. `docs/plans/2026-07-27-002-refactor-modernize-phase1-plan.md`)
+- No test suite additions or CI setup unless explicitly requested
+- Prefer documentation and small structural fixes over refactors

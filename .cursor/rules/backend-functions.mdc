@@ -1,0 +1,47 @@
+---
+description: Firebase Cloud Functions conventions for algosus backend
+globs: functions/**/*
+alwaysApply: false
+---
+
+# Backend functions
+
+All Cloud Functions live in `functions/src/` and are exported from `functions/src/index.ts`.
+
+## Function inventory
+
+| Export | Type | File |
+|---|---|---|
+| `getData` | HTTP | `getData.ts` |
+| `update` | HTTP | `update.ts` |
+| `buy` | HTTP | `buy.ts` |
+| `sell` | HTTP | `sell.ts` |
+| `scheduleBuy` | Scheduler (Mon 10:00 ET) | `buy.ts` |
+| `scheduleSell` | Scheduler (Fri 15:50 ET) | `sell.ts` |
+
+Use `export const` for all exports in `index.ts`.
+
+## Config and secrets
+
+- All env vars are loaded in `functions/src/config.ts` via `dotenv`
+- Required: `OPENAI_API_KEY`, `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `FB_API_KEY`, `FB_DB_URL`
+- See `functions/.env.example` for the template
+- Alpaca is paper-only (`paper: true`) — do not change without explicit request
+
+## Data layer
+
+- Firebase **Realtime Database** (not Firestore) — `firebase/database` in `config.ts`
+- `UpdateProfile` in `update.ts` writes `account/` and `timeline/` nodes
+- `getData.ts` reads the root and may trigger a refresh when data is stale
+
+## Local dev
+
+```bash
+npm --prefix functions run serve
+```
+
+Emulator base URL: `http://127.0.0.1:5001/algosus/us-central1/`
+
+## Lint
+
+ESLint runs only in `functions/` (`npm --prefix functions run lint`). No root-level linter.

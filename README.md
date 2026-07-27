@@ -1,6 +1,10 @@
 # algosus
 
-Stock trading bot for educational purposes and fun. Built with React, TypeScript, D3.js, Material UI and uses Google Cloud Platform (GCP) as the BaaS. Track its live performance [here](https://algosus.vercel.app/).
+Stock trading bot for educational purposes and fun. Built with React, TypeScript, D3.js, Material UI and uses Google Cloud Platform (GCP) as the BaaS. A previous live dashboard was at [algosus.vercel.app](https://algosus.vercel.app/); **automatic Vercel deploys are disabled** — see `vercel.json`.
+
+## Git workflow
+
+All development uses the **`main`** branch only. Clone, commit, and push to `main`; do not use feature branches unless you have a specific reason to isolate work.
 
 ## Features
 
