@@ -55,8 +55,10 @@ const Table = (props: props) => {
 					getRowId={(row: any) => row.symbol}
 					rows={positions}
 					columns={header}
-					pageSize={15}
-					rowsPerPageOptions={[15]}
+					initialState={{
+						pagination: { paginationModel: { pageSize: 15 } }
+					}}
+					pageSizeOptions={[15]}
 				/>
 			</Box>
 		</>
