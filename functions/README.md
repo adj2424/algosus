@@ -23,8 +23,7 @@ Backend for the algosus trading bot. Handles Gemini stock selection, Alpaca pape
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `GEMINI_API_KEY` | Yes | Gemini API for stock picks (`buy.ts`) |
-| `GEMINI_MODEL` | No | Override default model (`gemini-3.6-flash`) |
+| `GEMINI_API_KEY` | Yes | Gemini API for stock picks (`buy.ts`; model `gemini-3.5-flash-lite` hardcoded in `buy.ts`) |
 | `ALPACA_API_KEY` | Yes | Alpaca paper trading API key |
 | `ALPACA_SECRET_KEY` | Yes | Alpaca paper trading secret |
 | `FB_DB_URL` | Yes | Firebase Realtime Database URL |

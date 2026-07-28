@@ -6,7 +6,7 @@ module: functions/src/buy.ts
 problem_type: integration_issue
 component: tooling
 symptoms:
-  - "Code review flagged thinkingConfig: { thinkingBudget: 0 } as likely to fail generateContent calls on gemini-3.6-flash"
+  - "Code review flagged thinkingConfig: { thinkingBudget: 0 } as likely to fail generateContent calls on Gemini 3.x models"
   - "thinkingBudget is a Gemini 2.5-era parameter silently inapplicable to Gemini 3.x thinking control"
 root_cause: wrong_api
 resolution_type: code_fix
@@ -18,7 +18,7 @@ tags: [gemini, google-genai, thinking-config, llm-integration, api-migration]
 
 ## Problem
 
-While migrating `functions/src/buy.ts` from OpenAI to Gemini (`@google/genai`), the initial implementation set `thinkingConfig: { thinkingBudget: 0 }` to minimize latency/cost on the default model `gemini-3.6-flash`, by direct analogy with OpenAI's old `max_output_tokens`/`store` style config object. This looked reasonable but targets the wrong API generation for the model in use.
+While migrating `functions/src/buy.ts` from OpenAI to Gemini (`@google/genai`), the initial implementation set `thinkingConfig: { thinkingBudget: 0 }` to minimize latency/cost, by direct analogy with OpenAI's old `max_output_tokens`/`store` style config object. This looked reasonable but targets the wrong API generation for Gemini 3.x models.
 
 ## Symptoms
 
@@ -38,20 +38,20 @@ Read the installed SDK's own type declarations to confirm both fields exist, the
 Select-String -Path "genai.d.ts" -Pattern "Thinking"
 ```
 
-This surfaced `ThinkingConfig.thinkingLevel?: ThinkingLevel` alongside `thinkingBudget?: number`, and a separate `export declare enum ThinkingLevel { MINIMAL, LOW, MEDIUM, HIGH }`. Cross-checked against [ai.google.dev thinking docs](https://ai.google.dev/gemini-api/docs/generate-content/thinking): Gemini 3.x models (including `gemini-3.6-flash`) use `thinkingLevel`; Gemini 2.5 models use `thinkingBudget` and don't support `thinkingLevel` at all. Gemini 3 Flash cannot fully disable thinking — `minimal` is the closest approximation, not a true zero.
+This surfaced `ThinkingConfig.thinkingLevel?: ThinkingLevel` alongside `thinkingBudget?: number`, and a separate `export declare enum ThinkingLevel { MINIMAL, LOW, MEDIUM, HIGH }`. Cross-checked against [ai.google.dev thinking docs](https://ai.google.dev/gemini-api/docs/generate-content/thinking): Gemini 3.x models use `thinkingLevel`; Gemini 2.5 models use `thinkingBudget` and don't support `thinkingLevel` at all. Gemini 3 Flash cannot fully disable thinking — `minimal` is the closest approximation, not a true zero.
 
-Fixed call site:
+Fixed call site (current production shape in `buy.ts`):
 
 ```typescript
 import { ThinkingLevel } from '@google/genai';
 
-const res = await Gemini.models.generateContent({
-  model: GeminiModel,
+const res = await GeminiClient.models.generateContent({
+  model: 'gemini-3.5-flash-lite',
   contents: STOCK_PICK_PROMPT,
   config: {
     temperature: 0.8,
     maxOutputTokens: 512,
-    thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL }
+    thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH }
   }
 });
 ```
@@ -60,7 +60,7 @@ const res = await Gemini.models.generateContent({
 
 ## Why This Works
 
-`thinkingBudget` and `thinkingLevel` are two generations of the same feature, not interchangeable settings within one config object — the SDK exposes both fields on `ThinkingConfig` because it serves multiple model families simultaneously, but a given model only honors the field matching its own generation. Passing the wrong one is not caught by TypeScript (both are valid, typed, optional fields on the same interface) and may not error at the API layer either; it can silently no-op, leaving the model on its default thinking level (`medium` for `gemini-3.6-flash`) rather than the intended low-latency setting.
+`thinkingBudget` and `thinkingLevel` are two generations of the same feature, not interchangeable settings within one config object — the SDK exposes both fields on `ThinkingConfig` because it serves multiple model families simultaneously, but a given model only honors the field matching its own generation. Passing the wrong one is not caught by TypeScript (both are valid, typed, optional fields on the same interface) and may not error at the API layer either; it can silently no-op, leaving the model on its default thinking level rather than the intended setting.
 
 ## Prevention
 

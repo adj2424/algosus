@@ -55,7 +55,7 @@ flowchart TB
     SS[scheduleSell Fri 15:50 ET]
   end
   subgraph buy_path [Buy path]
-    GEM[Gemini gemini-3.6-flash picks top 5 tickers]
+    GEM[Gemini gemini-3.5-flash-lite picks top 5 tickers]
     ALP_B[Alpaca buy orders]
   end
   subgraph sell_path [Sell path]
@@ -76,7 +76,7 @@ flowchart TB
   GD --> APP
 ```
 
-1. **Buy (Monday 10:00 AM ET):** `scheduleBuy` calls Gemini (`gemini-3.6-flash` default) in `functions/src/buy.ts` for top 5 ticker symbols, then places Alpaca buy orders with available cash.
+1. **Buy (Monday 10:00 AM ET):** `scheduleBuy` calls Gemini (`gemini-3.5-flash-lite` with `thinkingLevel: HIGH`) in `functions/src/buy.ts` for top 5 ticker symbols, then places Alpaca buy orders with available cash.
 2. **Sell (Friday 3:50 PM ET):** `scheduleSell` in `functions/src/sell.ts` closes all Alpaca positions via REST API, then refreshes the profile.
 3. **Profile update:** `UpdateProfile` in `functions/src/update.ts` writes account equity and positions to Firebase Realtime Database and appends a timeline entry.
 4. **Data API:** `getData` in `functions/src/getData.ts` reads RTDB and may trigger `UpdateProfile` when data is stale (18h threshold, or 5 min during market hours).

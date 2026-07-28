@@ -25,7 +25,7 @@ Use `export const` for all exports in `index.ts`.
 
 - All env vars are loaded in `functions/src/config.ts` via `dotenv`
 - Required: `GEMINI_API_KEY`, `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `FB_DB_URL`
-- Optional: `GEMINI_MODEL` overrides the default Flash model in `buy.ts`
+- Stock picks use `gemini-3.5-flash-lite` with `thinkingLevel: HIGH` in `buy.ts`
 - `FUNCTIONS_API_KEY` gates the manual `buy`/`sell`/`update` HTTP endpoints (`x-api-key` header)
 - See `functions/.env.example` for the template
 - Alpaca is paper-only (`paper: true`) — do not change without explicit request
