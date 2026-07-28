@@ -24,13 +24,15 @@ Use `export const` for all exports in `index.ts`.
 ## Config and secrets
 
 - All env vars are loaded in `functions/src/config.ts` via `dotenv`
-- Required: `OPENAI_API_KEY`, `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `FB_API_KEY`, `FB_DB_URL`
+- Required: `GEMINI_API_KEY`, `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`, `FB_DB_URL`
+- Optional: `GEMINI_MODEL` overrides the default Flash model in `buy.ts`
+- `FUNCTIONS_API_KEY` gates the manual `buy`/`sell`/`update` HTTP endpoints (`x-api-key` header)
 - See `functions/.env.example` for the template
 - Alpaca is paper-only (`paper: true`) — do not change without explicit request
 
 ## Data layer
 
-- Firebase **Realtime Database** (not Firestore) — `firebase/database` in `config.ts`
+- Firebase **Realtime Database** (not Firestore) — `firebase-admin/database` in `config.ts`
 - `UpdateProfile` in `update.ts` writes `account/` and `timeline/` nodes
 - `getData.ts` reads the root and may trigger a refresh when data is stale
 

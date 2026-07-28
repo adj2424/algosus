@@ -8,7 +8,7 @@ All development uses the **`main`** branch only. Clone, commit, and push to `mai
 
 ## Features
 
-- The AI trading bot uses the ChatGPT API to generate optimal stocks to buy and sell.
+- The AI trading bot uses the Gemini API to generate optimal stocks to buy and sell.
 - It leverages the Alpaca API for executing trades in the market.
 - Performs scheduled cloud functions in GCP to run the trading bot at specific times.
 - Simple user interface to view the trading data and its portfolio.

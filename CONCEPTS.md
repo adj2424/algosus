@@ -5,10 +5,10 @@
 ## Trading
 
 ### Trading flow
-The end-to-end path from scheduled or manual buy/sell through external APIs to persisted portfolio state and the frontend dashboard. Buy uses OpenAI for ticker selection and Alpaca for orders; sell closes Alpaca positions; both paths call profile update before the UI reads data via the data API.
+The end-to-end path from scheduled or manual buy/sell through external APIs to persisted portfolio state and the frontend dashboard. Buy uses Gemini for ticker selection and Alpaca for orders; sell closes Alpaca positions; both paths call profile update before the UI reads data via the data API.
 
 ### scheduleBuy
-The weekly scheduled Cloud Function that runs the automated buy path (OpenAI stock pick, Alpaca buy orders, profile update). Triggers Monday mornings in US Eastern time.
+The weekly scheduled Cloud Function that runs the automated buy path (Gemini stock pick, Alpaca buy orders, profile update). Triggers Monday mornings in US Eastern time.
 
 ### scheduleSell
 The weekly scheduled Cloud Function that closes all Alpaca positions and refreshes the stored profile. Triggers Friday afternoons in US Eastern time.

@@ -17,7 +17,7 @@ alwaysApply: false
 ## Trading
 
 - Alpaca is configured for **paper trading only** (`paper: true` in `config.ts`)
-- Do not change buy/sell schedules, OpenAI prompts, or trading logic without explicit user request
+- Do not change buy/sell schedules, LLM prompts, or trading logic without explicit user request
 - Do not switch to live trading
 
 ## Frontend URLs

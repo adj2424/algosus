@@ -1,6 +1,48 @@
-.graph-header {
+.graph-container {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-sm);
+	padding: var(--space-md);
 	position: relative;
-	margin-top: 1vw;
-	margin-bottom: -40px;
-	margin-left: 1vw;
+}
+
+.graph-header {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.graph-svg-host {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	min-height: 220px;
+}
+
+.graph-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: var(--color-ink-muted);
+	font-size: 0.9rem;
+}
+
+.graph-tooltip {
+	position: absolute;
+	pointer-events: none;
+	background: var(--color-ink);
+	color: #fff;
+	padding: 4px 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	white-space: nowrap;
+	transform: translate(-50%, -100%);
+	opacity: 0;
+	transition: opacity 0.1s ease;
+}
+
+@media (max-width: 600px) {
+	.graph-svg-host {
+		aspect-ratio: 4 / 3;
+	}
 }

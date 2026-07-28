@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
-import Chip from '@mui/material/Chip';
+import { useState } from 'react';
 import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import './GraphHeader.css';
@@ -12,13 +10,11 @@ type props = {
   original: any[];
 };
 
-const GraphHeader = (props: props) => {
-  let { timeline, setTimeline, original } = props;
+const RANGES = ['1D', '1W', '1M', '1YR', 'ALL'] as const;
 
-  const [rendered, setRendered] = useState(false);
-  const [equity, setEquity] = useState(0);
-  const [profit, setProfit] = useState('');
-  const [color, setColor] = useState('primary');
+const GraphHeader = (props: props) => {
+  const { setTimeline, original } = props;
+  const [activeRange, setActiveRange] = useState<string>('ALL');
 
   //returns in days
   const getDateDifference = (date1: Date, date2: Date) => {
@@ -27,6 +23,7 @@ const GraphHeader = (props: props) => {
 
   //change timeline based on time range
   const setRange = (range: string) => {
+    setActiveRange(range);
     let ranges: any[] = [];
     let difference = 1;
     if (range === '1D') {
@@ -65,7 +62,7 @@ const GraphHeader = (props: props) => {
     }
     // edge case for 0 days meaning no data points are in range
     // will create two temporary points with latest equity
-    if (ranges.length === 0) {
+    if (ranges.length === 0 && original.length > 0) {
       const now = new Date();
       let temp = {
         date: now.toString(),
@@ -81,53 +78,20 @@ const GraphHeader = (props: props) => {
     setTimeline(ranges);
   };
 
-  useEffect(() => {
-    // skips first render
-    if (!rendered) {
-      setRendered(true);
-      return;
-    }
-    setEquity(timeline[timeline.length - 1].equity);
-    const p = timeline[timeline.length - 1].equity - timeline[0].equity;
-    let s = `$${Math.abs(p).toFixed(2)} (${((Math.abs(p) / timeline[0].equity) * 100).toFixed(2)}%)`;
-    if (p >= 0) {
-      s = `+${s}`;
-      setColor('success');
-    }
-    // negative profit
-    else {
-      s = `-${s}`;
-      setColor('error');
-    }
-    setProfit(s);
-  }, [timeline]);
-
   return (
     <Stack className="graphHeader" direction="row" spacing={1}>
-      <Chip label={`$${equity.toFixed(2)}`} onClick={() => {}} />
-      {color === 'success' ? (
-        <Chip label={profit} variant="outlined" color="success" onClick={() => {}} />
-      ) : (
-        <Chip label={profit} variant="outlined" color="error" onClick={() => {}} />
-      )}
-      <Divider orientation="vertical" flexItem />
-
-      <ButtonGroup variant="outlined" color="inherit" aria-label="outlined button group">
-        <Button size="small" onClick={() => setRange('1D')}>
-          1D
-        </Button>
-        <Button size="small" onClick={() => setRange('1W')}>
-          1W
-        </Button>
-        <Button size="small" onClick={() => setRange('1M')}>
-          1M
-        </Button>
-        <Button size="small" onClick={() => setRange('1YR')}>
-          1YR
-        </Button>
-        <Button size="small" onClick={() => setRange('ALL')}>
-          ALL
-        </Button>
+      <ButtonGroup variant="outlined" color="primary" aria-label="Chart time range">
+        {RANGES.map(range => (
+          <Button
+            key={range}
+            size="small"
+            aria-pressed={activeRange === range}
+            className={activeRange === range ? 'range-active' : ''}
+            onClick={() => setRange(range)}
+          >
+            {range}
+          </Button>
+        ))}
       </ButtonGroup>
     </Stack>
   );

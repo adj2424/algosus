@@ -1,20 +1,120 @@
-.flex-container {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-}
-.graph {
-	flex: 2;
-	margin: 1.5vw;
-	min-width: 400px;
-}
-.table {
-	flex: 1;
-	margin: 1.5vw;
-	min-width: 450px;
+.page {
+	min-height: 100vh;
 }
 
-.links {
+.top-bar {
 	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--space-sm);
+	padding: var(--space-sm) var(--space-lg);
+	border-bottom: 1px solid var(--color-border);
+	background: var(--color-paper);
+	position: sticky;
+	top: 0;
+	z-index: 5;
 	flex-wrap: wrap;
+}
+
+.brand {
+	font-family: var(--font-display);
+	color: var(--color-ink);
+}
+
+.content-grid {
+	display: grid;
+	gap: var(--space-md);
+	padding: var(--space-md) var(--space-lg);
+	grid-template-columns: 1fr;
+	grid-template-areas:
+		'chart'
+		'holdings'
+		'about';
+}
+
+@media (min-width: 900px) {
+	.content-grid {
+		grid-template-columns: 2fr 1fr;
+		grid-template-areas:
+			'chart holdings'
+			'about about';
+	}
+}
+
+.chart-column {
+	grid-area: chart;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-md);
+	min-width: 0;
+}
+
+.holdings-column {
+	grid-area: holdings;
+	min-width: 0;
+}
+
+.about-column {
+	grid-area: about;
+}
+
+.stats-strip {
+	display: flex;
+	gap: var(--space-sm);
+	flex-wrap: wrap;
+}
+
+.stat {
+	background: var(--color-paper);
+	border: 1px solid var(--color-border);
+	border-radius: 10px;
+	padding: var(--space-sm) var(--space-md);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 120px;
+	flex: 1 1 120px;
+}
+
+.stat-label {
+	font-size: 0.72rem;
+	color: var(--color-ink-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.stat-value {
+	font-family: var(--font-display);
+	font-size: 1.25rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.stat--positive .stat-value {
+	color: var(--color-positive);
+}
+
+.stat--negative .stat-value {
+	color: var(--color-negative);
+}
+
+.chart-card {
+	display: flex;
+	flex-direction: column;
+}
+
+.chart-error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 240px;
+	padding: var(--space-md);
+	text-align: center;
+}
+
+.about-list {
+	padding-left: 1.2rem;
+	margin: 0;
 }

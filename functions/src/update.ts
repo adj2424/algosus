@@ -1,27 +1,28 @@
 import { onRequest } from "firebase-functions/v2/https";
-import { ref, set, push } from "firebase/database";
 import { Position } from "./models";
 import { DB, AlpacaClient } from "./config";
+import { requireApiKey } from "./auth";
+
+// starting equity when the bot was initiated (Feb 2023)
+const INITIAL_EQUITY = 3000;
 
 export const UpdateProfile = async () => {
   try {
     const account = await AlpacaClient.getAccount();
     const portfolio: Position[] = await AlpacaClient.getPositions();
 
-    await set(ref(DB, "account/"), {
+    await DB.ref("account").set({
       current_equity: Number(account.equity),
       last_equity: Number(account.last_equity),
       positions: portfolio,
-      initial_equity: 3000,
+      initial_equity: INITIAL_EQUITY,
     });
 
     // update timeline with new forced update
-    const equityData = {
+    await DB.ref("timeline").push({
       equity: Number(account.equity),
-      date: new Date().toString(),
-    };
-    const myRef = push(ref(DB, "timeline/"));
-    await set(myRef, equityData);
+      date: new Date().toISOString(),
+    });
   } catch (error) {
     console.error("Error updating profile:", error);
     throw error;
@@ -29,7 +30,8 @@ export const UpdateProfile = async () => {
 };
 
 // force update profile during testing or something
-export const UpdateFunc = onRequest({ cors: true }, async (request, response) => {
+export const UpdateFunc = onRequest(async (request, response) => {
+  if (!requireApiKey(request, response)) return;
   try {
     await UpdateProfile();
   } catch (error) {

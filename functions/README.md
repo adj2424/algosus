@@ -1,6 +1,6 @@
 # algosus — Firebase Cloud Functions
 
-Backend for the algosus trading bot. Handles OpenAI stock selection, Alpaca paper trading, scheduled buy/sell, and Firebase Realtime Database sync.
+Backend for the algosus trading bot. Handles Gemini stock selection, Alpaca paper trading, scheduled buy/sell, and Firebase Realtime Database sync.
 
 ## Setup
 
@@ -23,13 +23,16 @@ Backend for the algosus trading bot. Handles OpenAI stock selection, Alpaca pape
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `OPENAI_API_KEY` | Yes | ChatGPT API for stock picks (`buy.ts`) |
+| `GEMINI_API_KEY` | Yes | Gemini API for stock picks (`buy.ts`) |
+| `GEMINI_MODEL` | No | Override default model (`gemini-3.6-flash`) |
 | `ALPACA_API_KEY` | Yes | Alpaca paper trading API key |
 | `ALPACA_SECRET_KEY` | Yes | Alpaca paper trading secret |
-| `FB_API_KEY` | Yes | Firebase client API key (`config.ts`) |
 | `FB_DB_URL` | Yes | Firebase Realtime Database URL |
+| `FUNCTIONS_API_KEY` | For manual triggers | Shared secret required as `x-api-key` header on the `buy`, `sell`, and `update` HTTP endpoints |
 
 Alpaca is configured for **paper trading only** (`paper: true` in `config.ts`). Do not switch to live trading without explicit intent.
+
+Firebase access uses the **admin SDK** with the Cloud Functions service account. For local emulator runs against the production database, authenticate with application default credentials first (`gcloud auth application-default login`) or set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account key file.
 
 ## Local development
 
@@ -59,7 +62,7 @@ Runs `firebase deploy --only functions`. Requires Firebase CLI authentication an
 
 | Function | Schedule | Timezone | Action |
 |---|---|---|---|
-| `scheduleBuy` | `0 10 * * 1` (Monday 10:00) | America/New_York | OpenAI picks → Alpaca buy |
+| `scheduleBuy` | `0 10 * * 1` (Monday 10:00) | America/New_York | Gemini picks → Alpaca buy |
 | `scheduleSell` | `50 15 * * 5` (Friday 15:50) | America/New_York | Close all positions → update profile |
 
 ## Function reference

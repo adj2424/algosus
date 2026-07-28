@@ -1,5 +1,22 @@
 .graphHeader {
-	display: flex;
 	flex-wrap: wrap;
-	min-width: 200px;
+}
+
+.graphHeader .MuiButton-root {
+	min-height: 36px;
+}
+
+.range-active {
+	background-color: var(--color-accent-muted) !important;
+	border-color: var(--color-accent) !important;
+	color: var(--color-accent) !important;
+	font-weight: 600 !important;
+}
+
+@media (max-width: 600px) {
+	.graphHeader .MuiButton-root {
+		min-height: 40px;
+		min-width: 40px;
+		padding: 6px 10px;
+	}
 }

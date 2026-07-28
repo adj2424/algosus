@@ -13,7 +13,7 @@ Educational stock trading bot. Two packages in one repo:
 
 ## Trading flow (summary)
 
-1. `scheduleBuy` (Mon 10:00 ET) → OpenAI picks 5 tickers → Alpaca buys → `UpdateProfile` writes to Firebase RTDB
+1. `scheduleBuy` (Mon 10:00 ET) → Gemini picks 5 tickers → Alpaca buys → `UpdateProfile` writes to Firebase RTDB
 2. `scheduleSell` (Fri 15:50 ET) → Alpaca closes positions → `UpdateProfile` writes to RTDB
 3. `getData` HTTP endpoint serves portfolio data to the frontend
 4. `src/App.tsx` fetches `getData` on load
@@ -26,7 +26,7 @@ Educational stock trading bot. Two packages in one repo:
 ## Key entrypoints
 
 - `functions/src/index.ts` — exports all Cloud Functions
-- `functions/src/config.ts` — env vars, OpenAI, Alpaca, Firebase init
+- `functions/src/config.ts` — env vars, Gemini, Alpaca, Firebase init
 - `functions/src/buy.ts`, `sell.ts`, `update.ts`, `getData.ts` — core logic
 - `src/App.tsx` — frontend data fetch (hardcoded production URL by default)
 

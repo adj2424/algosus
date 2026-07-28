@@ -1,34 +1,42 @@
-import { onRequest } from "firebase-functions/v2/https";
-import { onSchedule } from "firebase-functions/v2/scheduler";
-import { UpdateProfile } from "./update";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { onRequest } from 'firebase-functions/v2/https';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { AlpacaClient } from './config';
+import { UpdateProfile } from './update';
+import { requireApiKey } from './auth';
 
 const sell = async () => {
-  await fetch("https://paper-api.alpaca.markets/v2/positions", {
-    method: "DELETE",
-    headers: {
-      "Accept": "application/json",
-      "APCA-API-KEY-ID": process.env.ALPACA_API_KEY!,
-      "APCA-API-SECRET-KEY": process.env.ALPACA_SECRET_KEY!,
-    },
-  });
-  await UpdateProfile();
+  try {
+    await AlpacaClient.closeAllPositions();
+    await UpdateProfile();
+  } catch (error) {
+    console.error('Error running sell:', error);
+    throw error;
+  }
 };
 
-export const SellFunc = onRequest({ cors: true }, async (request, response) => {
-  await sell();
-  response.send("sell done");
+export const SellFunc = onRequest(async (request, response) => {
+  if (!requireApiKey(request, response)) return;
+  try {
+    await sell();
+  } catch (error) {
+    console.error('Error running sell:', error);
+    response.status(500).send('Error running sell');
+    return;
+  }
+  response.send('sell done');
 });
 
 // runs friday at 3:50pm
 export const ScheduleSell = onSchedule(
   {
-    schedule: "50 15 * * 5",
-    timeZone: "America/New_York",
+    schedule: '50 15 * * 5',
+    timeZone: 'America/New_York'
   },
   async () => {
-    await sell();
+    try {
+      await sell();
+    } catch (error) {
+      console.error('Error running scheduled sell:', error);
+    }
   }
 );

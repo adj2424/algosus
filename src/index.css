@@ -1,0 +1,30 @@
+:root {
+  --color-ink: #12181f;
+  --color-ink-muted: #4b5563;
+  --color-paper: #ffffff;
+  --color-surface: #f6f7f9;
+  --color-border: #e2e5ea;
+  --color-accent: #0f766e;
+  --color-accent-muted: #e6f4f2;
+  --color-positive: #0f9d58;
+  --color-negative: #d33f3f;
+
+  --font-display: 'Sora', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}

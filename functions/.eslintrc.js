@@ -10,27 +10,23 @@ module.exports = {
     'plugin:import/warnings',
     'plugin:import/typescript',
     'google',
-    'plugin:@typescript-eslint/recommended'
+    'plugin:@typescript-eslint/recommended',
+    // must be last: disables all formatting rules that conflict with
+    // Prettier, so formatting is Prettier's job and linting is ESLint's
+    'prettier'
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    tsconfigRootDir: __dirname,
     project: ['tsconfig.json'],
     sourceType: 'module'
   },
-  ignorePatterns: [
-    '/lib/**/*',
-    '/generated/**/*',
-    '.eslintrc.js'
-  ],
+  ignorePatterns: ['/lib/**/*', '/generated/**/*', '.eslintrc.js'],
   plugins: ['@typescript-eslint', 'import'],
   rules: {
-    quotes: ['error', 'double'],
     'import/no-unresolved': 0,
-    indent: ['error', 2],
-    'linebreak-style': 0,
-    'max-len': ['error', { code: 120, ignoreUrls: true, ignoreStrings: true }],
-    'object-curly-spacing': ['error', 'always'],
     'new-cap': 0,
-    'valid-jsdoc': 0
+    'valid-jsdoc': 0,
+    'require-jsdoc': 0
   }
 };
