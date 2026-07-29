@@ -36,3 +36,9 @@ The time-ordered series of portfolio equity snapshots written after trades and p
 
 ### Peak−trough variance
 The difference between the highest and lowest equity values on the visible chart series. Used to choose how compact y-axis dollar labels should be for that draw (full dollars vs `$k` precision), not the absolute size of any single tick.
+
+### Visible date span
+The time difference between the first and last points of the visible Timeline series on the equity chart. Used to choose how specific x-axis date labels should be for that draw (day vs month+year), not which range button was clicked.
+
+### Chart range
+The dashboard time-window selector (`1D` / `1W` / `1M` / `1YR` / `ALL`) that filters which Timeline points drive the equity chart and the stats-strip P&L baseline. Plain-language labels in the stats strip (Today, Past week, etc.) map to these codes; button labels stay as the short codes.

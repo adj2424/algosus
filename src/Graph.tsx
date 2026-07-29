@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './Graph.css';
 import * as d3 from 'd3';
-import GraphHeader from './GraphHeader';
+import GraphHeader, { type ChartRange } from './GraphHeader';
 import Skeleton from '@mui/material/Skeleton';
 
 type props = {
@@ -10,10 +10,12 @@ type props = {
   original: any[];
   loading: boolean;
   empty: boolean;
+  activeRange: ChartRange;
+  setActiveRange: (range: ChartRange) => void;
 };
 
 const Graph = (props: props) => {
-  const { timeline, setTimeline, original, loading, empty } = props;
+  const { timeline, setTimeline, original, loading, empty, activeRange, setActiveRange } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const svgHostRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -88,9 +90,23 @@ const Graph = (props: props) => {
       return `$${Math.round(k)}k`;
     };
 
+    // X precision follows visible date span (one tier per draw).
+    const MS_PER_DAY = 86_400_000;
+    const spanDays = Math.abs(currentDate.getTime() - initialDate.getTime()) / MS_PER_DAY;
+    const useDayLabels = spanDays <= 90;
+    const crossesYear = initialDate.getFullYear() !== currentDate.getFullYear();
+    const dateAxisFormatter = new Intl.DateTimeFormat(
+      'en-US',
+      useDayLabels
+        ? crossesYear
+          ? { month: 'short', day: 'numeric', year: 'numeric' }
+          : { month: 'short', day: 'numeric' }
+        : { month: 'short', year: 'numeric' }
+    );
+
     const formatDateAxis = (value: Date | d3.NumberValue) => {
       const date = value instanceof Date ? value : new Date(value.valueOf());
-      return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+      return dateAxisFormatter.format(date);
     };
 
     const styleAxis = (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => {
@@ -164,7 +180,13 @@ const Graph = (props: props) => {
   return (
     <div className="graph-container" ref={containerRef}>
       <div className="graph-header">
-        <GraphHeader original={original} timeline={timeline} setTimeline={setTimeline} />
+        <GraphHeader
+          original={original}
+          timeline={timeline}
+          setTimeline={setTimeline}
+          activeRange={activeRange}
+          setActiveRange={setActiveRange}
+        />
       </div>
       <div className="graph-svg-host" ref={svgHostRef} role="img" aria-label="Equity over time line chart">
         {loading && <Skeleton variant="rounded" sx={{ width: '100%', height: '100%' }} />}

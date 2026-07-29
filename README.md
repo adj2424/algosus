@@ -117,30 +117,17 @@ Fill in the values — see `functions/README.md`.
 
 4. Run locally:
 
-- **Frontend only** (uses production `getData`): `npm run dev`
-- **Full local stack:** start the functions emulator, point the UI at it, then start Vite:
+- **Frontend only:** `npm run dev` (uses emulator URL from `.env.development`)
+- **Full local stack:** start the functions emulator, then Vite:
 
 ```sh
 npm --prefix functions run serve
-```
-
-In `src/App.tsx`:
-
-```typescript
-const local = 'http://127.0.0.1:5001/algosus/us-central1/getData';
-const production = 'https://us-central1-algosus.cloudfunctions.net/getData';
-const url = local; // use `production` for the live API
-```
-
-Then:
-
-```sh
 npm run dev
 ```
 
 ## Frontend API URL
 
-`src/App.tsx` hardcodes the local emulator and production `getData` URLs (see above). Default in the repo is usually `production`.
+`VITE_API_URL` in root `.env.development` / `.env.production` selects the `getData` endpoint per Vite mode. `src/App.tsx` reads `import.meta.env.VITE_API_URL`. See `.env.example` for details.
 
 ## Key files
 

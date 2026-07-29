@@ -22,8 +22,8 @@ alwaysApply: false
 
 ## Frontend URLs
 
-- `src/App.tsx` defaults to the **production** Cloud Function URL
-- Local emulator URL is documented but requires manually changing `const url = production` to `local`
+- `VITE_API_URL` in `.env.development` (emulator) and `.env.production` (live API) — see root `.env.example`
+- `npm run dev` uses development mode → emulator URL; production builds use the live Cloud Function URL
 - Do not point production deploys at localhost
 
 ## Deploy

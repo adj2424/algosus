@@ -13,16 +13,18 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import { RANGE_LABELS, type ChartRange } from './GraphHeader';
 
 type StatsStripProps = {
   account: any;
   timeline: any[];
   loading: boolean;
+  activeRange: ChartRange;
 };
 
 // Inlined rather than split into its own file: this strip has a single
 // consumer (App) and shares App's account/timeline state directly.
-function StatsStrip({ account, timeline, loading }: StatsStripProps) {
+function StatsStrip({ account, timeline, loading, activeRange }: StatsStripProps) {
   if (loading) {
     return (
       <div className="stats-strip" aria-label="Portfolio stats loading">
@@ -48,7 +50,7 @@ function StatsStrip({ account, timeline, loading }: StatsStripProps) {
         <span className="stat-value">${currentEquity.toFixed(2)}</span>
       </div>
       <div className={`stat stat--${positive ? 'positive' : 'negative'}`}>
-        <span className="stat-label">All-time</span>
+        <span className="stat-label">{RANGE_LABELS[activeRange]}</span>
         <span className="stat-value">
           {positive ? <TrendingUpIcon fontSize="small" /> : <TrendingDownIcon fontSize="small" />}
           {positive ? '+' : '-'}${Math.abs(delta).toFixed(2)} ({Math.abs(deltaPct).toFixed(2)}%)
@@ -68,12 +70,17 @@ function App() {
   const [account, setAccount] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
+  const [activeRange, setActiveRange] = useState<ChartRange>('ALL');
 
   useEffect(() => {
     const fetchData = async () => {
-      const local = 'http://127.0.0.1:5001/algosus/us-central1/getData';
-      const production = 'https://us-central1-algosus.cloudfunctions.net/getData';
-      const url = production;
+      const url = import.meta.env.VITE_API_URL;
+      if (!url) {
+        console.error('VITE_API_URL is not set. Check .env.development / .env.production.');
+        setFetchError(true);
+        setLoading(false);
+        return;
+      }
       await fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -131,7 +138,7 @@ function App() {
 
       <main className="content-grid">
         <section className="chart-column">
-          <StatsStrip account={account} timeline={timeline} loading={loading} />
+          <StatsStrip account={account} timeline={timeline} loading={loading} activeRange={activeRange} />
           <Card className="chart-card" variant="outlined">
             {fetchError ? (
               <div className="chart-error" role="alert">
@@ -146,6 +153,8 @@ function App() {
                 setTimeline={setTimeline}
                 loading={loading}
                 empty={isEmpty}
+                activeRange={activeRange}
+                setActiveRange={setActiveRange}
               />
             )}
           </Card>

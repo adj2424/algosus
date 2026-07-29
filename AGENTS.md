@@ -97,15 +97,14 @@ All exports are registered in `functions/src/index.ts`.
 
 ## Frontend API URL
 
-`src/App.tsx` hardcodes two URLs:
+`src/App.tsx` reads `import.meta.env.VITE_API_URL`. Vite loads it from committed mode env files at the repo root:
 
-```typescript
-const local = 'http://127.0.0.1:5001/algosus/us-central1/getData';
-const production = 'https://us-central1-algosus.cloudfunctions.net/getData';
-const url = production; // change to `local` when testing against the emulator
-```
+- `npm run dev` → `.env.development` (Firebase emulator `getData`)
+- `npm run build` / Vercel → `.env.production` (live Cloud Function)
 
-To test locally: start the functions emulator (`npm --prefix functions run serve`), set `url = local`, then run `npm run dev`.
+See root `.env.example` for the variable and URLs. Optional overrides: `.env.local` (gitignored).
+
+To test locally: start the functions emulator (`npm --prefix functions run serve`), then `npm run dev`.
 
 ## Key files
 

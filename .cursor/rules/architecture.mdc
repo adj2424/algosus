@@ -28,6 +28,6 @@ Educational stock trading bot. Two packages in one repo:
 - `functions/src/index.ts` — exports all Cloud Functions
 - `functions/src/config.ts` — env vars, Gemini, Alpaca, Firebase init
 - `functions/src/buy.ts`, `sell.ts`, `update.ts`, `getData.ts` — core logic
-- `src/App.tsx` — frontend data fetch (hardcoded production URL by default)
+- `src/App.tsx` — frontend data fetch via `VITE_API_URL` (mode env files)
 
 Read `AGENTS.md` at repo root for the full file map, flow diagram, and git workflow (`main` only).

@@ -1,20 +1,29 @@
-import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import './GraphHeader.css';
 
+export const RANGES = ['1D', '1W', '1M', '1YR', 'ALL'] as const;
+export type ChartRange = (typeof RANGES)[number];
+
+export const RANGE_LABELS: Record<ChartRange, string> = {
+  '1D': 'Today',
+  '1W': 'Past week',
+  '1M': 'Past month',
+  '1YR': 'Past year',
+  ALL: 'All time'
+};
+
 type props = {
   timeline: any[];
   setTimeline: any;
   original: any[];
+  activeRange: ChartRange;
+  setActiveRange: (range: ChartRange) => void;
 };
 
-const RANGES = ['1D', '1W', '1M', '1YR', 'ALL'] as const;
-
 const GraphHeader = (props: props) => {
-  const { setTimeline, original } = props;
-  const [activeRange, setActiveRange] = useState<string>('ALL');
+  const { setTimeline, original, activeRange, setActiveRange } = props;
 
   //returns in days
   const getDateDifference = (date1: Date, date2: Date) => {
@@ -22,7 +31,7 @@ const GraphHeader = (props: props) => {
   };
 
   //change timeline based on time range
-  const setRange = (range: string) => {
+  const setRange = (range: ChartRange) => {
     setActiveRange(range);
     let ranges: any[] = [];
     let difference = 1;
