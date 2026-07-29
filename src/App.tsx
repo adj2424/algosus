@@ -34,7 +34,7 @@ function StatsStrip({ account, timeline, loading }: StatsStripProps) {
   }
 
   const currentEquity =
-    account.current_equity ?? (timeline.length ? timeline[timeline.length - 1].equity : account.initial_equity ?? 0);
+    account.current_equity ?? (timeline.length ? timeline[timeline.length - 1].equity : (account.initial_equity ?? 0));
   const baseline = timeline.length ? timeline[0].equity : (account.initial_equity ?? currentEquity);
   const delta = currentEquity - baseline;
   const deltaPct = baseline ? (delta / baseline) * 100 : 0;
@@ -163,8 +163,8 @@ function App() {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Hi! This is a stock trading bot I built for educational purposes and for fun. It was initiated in
-                February 2023 with a starting equity of $3000 USD. Built with React, TypeScript, D3.js, Material UI
-                and uses Google Cloud Platform (GCP) as the BaaS.
+                February 2023 with a starting equity of $3000 USD. Built with React, TypeScript, D3.js, Material UI and
+                uses Google Cloud Platform (GCP) as the BaaS.
               </Typography>
               <ul className="about-list">
                 <Typography variant="body2" color="text.secondary" component="li">

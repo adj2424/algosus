@@ -1,32 +1,165 @@
 # algosus
 
-Stock trading bot for educational purposes and fun. Built with React, TypeScript, D3.js, Material UI and uses Google Cloud Platform (GCP) as the BaaS. A previous live dashboard was at [algosus.vercel.app](https://algosus.vercel.app/); **automatic Vercel deploys are disabled** — see `vercel.json`.
+Stock trading bot for educational purposes. React dashboard + Firebase Cloud Functions backend with Gemini stock picks and Alpaca paper trading.
 
-## Git workflow
+Live dashboard: [algosus.vercel.app](https://algosus.vercel.app/)
 
-All development uses the **`main`** branch only. Clone, commit, and push to `main`; do not use feature branches unless you have a specific reason to isolate work.
+## Two-package layout
 
-## Features
+| Package  | Path                                       | Purpose                                                 |
+| -------- | ------------------------------------------ | ------------------------------------------------------- |
+| Frontend | `src/`, root `package.json`                | Vite + React UI (D3 graph, MUI table)                   |
+| Backend  | `functions/src/`, `functions/package.json` | Firebase Cloud Functions (trading, schedules, data API) |
 
-- The AI trading bot uses the Gemini API to generate optimal stocks to buy and sell.
-- It leverages the Alpaca API for executing trades in the market.
-- Performs scheduled cloud functions in GCP to run the trading bot at specific times.
-- Simple user interface to view the trading data and its portfolio.
+## Stack (Phase 1 — Jul 2026)
 
-## Getting Started
+| Layer      | Versions                                                                      |
+| ---------- | ----------------------------------------------------------------------------- |
+| TypeScript | 5.8.x (root + functions)                                                      |
+| React      | 19.x                                                                          |
+| MUI        | 6.x (`@mui/x-data-grid` 7.x)                                                  |
+| Build      | Vite 6.x                                                                      |
+| Backend    | Node 22, `firebase-functions` 6.x, `firebase-admin` 13.x, `@google/genai` 2.x |
 
-This is an example of how to run my project locally.
-To get a local copy up and running follow these simple example steps.
+Local verification (no deploy): `npm run build` (repo root), then `npm run build` and `npm run lint` **run from inside `functions/`** — all must pass after dependency changes. Caution: `npm --prefix functions run lint` from the repo root can silently lint nothing on Windows; always run backend build/lint with `functions/` as the working directory.
 
-1. Clone the repo
-   ```sh
-   git clone https://github.com/adj2424/algosus.git
-   ```
-2. Install NPM packages
-   ```sh
-   npm i
-   ```
-3. Start the application
-   ```sh
-   npm run dev
-   ```
+## Core scripts
+
+**Frontend (repo root):**
+
+```bash
+npm run dev      # Vite dev server (port 3000)
+npm run build    # tsc + vite build
+npm run preview  # preview production build
+```
+
+**Backend (`functions/`):**
+
+```bash
+npm --prefix functions run build   # compile TypeScript to lib/
+npm --prefix functions run serve   # emulator (functions only)
+npm --prefix functions run deploy  # deploy to Firebase
+npm --prefix functions run lint    # ESLint (functions only)
+```
+
+## Trading flow
+
+```mermaid
+flowchart TB
+  subgraph schedule [Scheduled triggers]
+    SB[scheduleBuy Mon 10:00 ET]
+    SS[scheduleSell Fri 15:50 ET]
+  end
+  subgraph buy_path [Buy path]
+    GEM[Gemini gemini-3.5-flash-lite picks top 5 tickers]
+    ALP_B[Alpaca buy orders]
+  end
+  subgraph sell_path [Sell path]
+    ALP_S[Alpaca close all positions]
+  end
+  subgraph persist [Persistence]
+    UPD[UpdateProfile writes account + timeline]
+    RTDB[(Firebase Realtime Database)]
+  end
+  subgraph ui [Frontend]
+    GD[getData HTTP endpoint]
+    APP[src/App.tsx fetches getData]
+  end
+  SB --> GEM --> ALP_B --> UPD
+  SS --> ALP_S --> UPD
+  UPD --> RTDB
+  GD --> RTDB
+  GD --> APP
+```
+
+1. **Buy (Monday 10:00 AM ET):** `scheduleBuy` calls Gemini (`gemini-3.5-flash-lite` with `thinkingLevel: HIGH`) in `functions/src/buy.ts` for top 5 ticker symbols, then places Alpaca buy orders with available cash.
+2. **Sell (Friday 3:50 PM ET):** `scheduleSell` in `functions/src/sell.ts` closes all Alpaca positions via REST API, then refreshes the profile.
+3. **Profile update:** `UpdateProfile` in `functions/src/update.ts` writes account equity and positions to Firebase Realtime Database and appends a timeline entry.
+4. **Data API:** `getData` in `functions/src/getData.ts` reads RTDB and may trigger `UpdateProfile` when data is stale (18h threshold, or 5 min during market hours).
+5. **Frontend:** `src/App.tsx` fetches `getData` on load and renders `Graph.tsx` + `Table.tsx`.
+
+## Cloud Functions
+
+| Export         | Type      | File                       | Purpose                                      |
+| -------------- | --------- | -------------------------- | -------------------------------------------- |
+| `getData`      | HTTP      | `functions/src/getData.ts` | Read portfolio data; auto-refresh when stale |
+| `update`       | HTTP      | `functions/src/update.ts`  | Manual profile refresh                       |
+| `buy`          | HTTP      | `functions/src/buy.ts`     | Manual buy trigger                           |
+| `sell`         | HTTP      | `functions/src/sell.ts`    | Manual sell trigger                          |
+| `scheduleBuy`  | Scheduler | `functions/src/buy.ts`     | Cron: `0 10 * * 1` America/New_York          |
+| `scheduleSell` | Scheduler | `functions/src/sell.ts`    | Cron: `50 15 * * 5` America/New_York         |
+
+All exports are registered in `functions/src/index.ts`.
+
+## Getting started
+
+1. Clone the repo:
+
+```sh
+git clone https://github.com/adj2424/algosus.git
+cd algosus
+```
+
+2. Install packages (root + functions):
+
+```sh
+npm i
+npm --prefix functions i
+```
+
+3. Copy env for the backend:
+
+```sh
+cp functions/.env.example functions/.env
+```
+
+Fill in the values — see `functions/README.md`.
+
+4. Run locally:
+
+- **Frontend only** (uses production `getData`): `npm run dev`
+- **Full local stack:** start the functions emulator, point the UI at it, then start Vite:
+
+```sh
+npm --prefix functions run serve
+```
+
+In `src/App.tsx`:
+
+```typescript
+const local = 'http://127.0.0.1:5001/algosus/us-central1/getData';
+const production = 'https://us-central1-algosus.cloudfunctions.net/getData';
+const url = local; // use `production` for the live API
+```
+
+Then:
+
+```sh
+npm run dev
+```
+
+## Frontend API URL
+
+`src/App.tsx` hardcodes the local emulator and production `getData` URLs (see above). Default in the repo is usually `production`.
+
+## Key files
+
+| Area             | Files                                                 |
+| ---------------- | ----------------------------------------------------- |
+| Config / secrets | `functions/src/config.ts`                             |
+| Data models      | `functions/src/models.ts`                             |
+| Trading logic    | `functions/src/buy.ts`, `functions/src/sell.ts`       |
+| Data sync        | `functions/src/update.ts`, `functions/src/getData.ts` |
+| Entrypoint       | `functions/src/index.ts`                              |
+| UI               | `src/App.tsx`, `src/Graph.tsx`, `src/Table.tsx`       |
+| Firebase project | `firebase.json`, `.firebaserc` (project: `algosus`)   |
+
+## Environment setup
+
+See `functions/README.md` and `functions/.env.example`. Copy `.env.example` to `.env` in `functions/` before running the emulator or deploying functions.
+
+## Project knowledge
+
+- `docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`).
+- `CONCEPTS.md` — shared domain vocabulary (entities, named processes, status concepts).
+- `AGENTS.md` — same project map oriented for coding agents.

@@ -29,7 +29,7 @@ alwaysApply: false
 ## Deploy
 
 - Functions deploy via `npm --prefix functions run deploy` (Firebase project: `algosus`)
-- Frontend: Vercel project exists but **git auto-deploy is off** (`vercel.json` sets `git.deploymentEnabled: false`). Pushes to `main` do not update production until you deploy manually from the Vercel dashboard or CLI.
+- Frontend: Vercel auto-deploys on push to `main` (`vercel.json` sets `git.deploymentEnabled: true`).
 - Do not modify `firebase.json` or `.firebaserc` without explicit request
 
 ## Scope discipline

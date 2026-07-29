@@ -25,7 +25,7 @@ Local verification (no deploy): `npm run build` (repo root), then `npm run build
 
 - **Single branch:** All work happens on `main`. Do not create feature branches or worktrees unless the user explicitly requests isolation.
 - **Remote:** `origin/main` is the only integration branch. Push directly to `main` after local verification.
-- **Deploys:** Vercel auto-deploy is disabled (`vercel.json` → `git.deploymentEnabled: false`). Firebase functions deploy only when explicitly requested.
+- **Deploys:** Vercel auto-deploys the frontend on push to `main` (`vercel.json` → `git.deploymentEnabled: true`). Firebase functions deploy only when explicitly requested.
 
 ## Core scripts
 
