@@ -28,3 +28,11 @@ algosus splits into a Vite React frontend at the repo root and a Firebase Cloud 
 
 ### Realtime Database
 The Firebase persistence layer for account and timeline data in this project. Portfolio state lives under account and timeline nodes. Not Firestore.
+
+### Timeline
+The time-ordered series of portfolio equity snapshots written after trades and profile refreshes. The dashboard equity chart plots these points as the x/y series.
+
+## Dashboard
+
+### Peak−trough variance
+The difference between the highest and lowest equity values on the visible chart series. Used to choose how compact y-axis dollar labels should be for that draw (full dollars vs `$k` precision), not the absolute size of any single tick.
