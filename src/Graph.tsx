@@ -34,11 +34,6 @@ const Graph = (props: props) => {
     return () => observer.disconnect();
   }, []);
 
-  //returns in days
-  const getDateDifference = (date1: Date, date2: Date) => {
-    return Math.abs((date1.valueOf() - date2.valueOf()) / (1000 * 60 * 60 * 24));
-  };
-
   useEffect(() => {
     const node = svgHostRef.current;
     if (!node) return;
@@ -59,31 +54,63 @@ const Graph = (props: props) => {
     const svg = d3.select(node).append('svg').attr('width', width).attr('height', height);
     const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // defines x scale
     const initialDate = new Date((timeline[0] as any).date);
     const currentDate = new Date((timeline[timeline.length - 1] as any).date);
-    const rangeDate = getDateDifference(initialDate, currentDate) || 1;
-    const xScale = d3.scaleLinear().range([0, w]).domain([0, rangeDate]);
+    const xScale = d3.scaleTime().domain([initialDate, currentDate]).range([0, w]);
 
     // defines y scale
     const yMin = Math.min(...(timeline as any).map((d: any) => d.equity));
     const yMax = Math.max(...(timeline as any).map((d: any) => d.equity));
-    const padding = (yMax - yMin) * 0.1 || 1;
+    const equityRange = yMax - yMin;
+    const padding = equityRange * 0.1 || 1;
     const yScale = d3
       .scaleLinear()
       .range([h, 0])
       .domain([yMin - padding, yMax + padding]);
 
-    //x axis properties
-    g.append('g')
-      .attr('transform', 'translate(0,' + h + ')')
-      .call(d3.axisBottom(xScale).ticks(Math.min(6, timeline.length)));
-    //y axis properties
-    g.append('g').call(d3.axisLeft(yScale).ticks(6));
-
     const rootStyles = getComputedStyle(document.documentElement);
+    const inkMuted = rootStyles.getPropertyValue('--color-ink-muted').trim() || '#4b5563';
     const positiveColor = rootStyles.getPropertyValue('--color-positive').trim() || '#0f9d58';
     const negativeColor = rootStyles.getPropertyValue('--color-negative').trim() || '#d33f3f';
+
+    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+    const PX_PER_X_TICK = 80;
+    const PX_PER_Y_TICK = 40;
+    const xTickCount = Math.min(clamp(Math.floor(w / PX_PER_X_TICK), 3, 12), timeline.length);
+    const yTickCount = clamp(Math.floor(h / PX_PER_Y_TICK), 4, 10);
+
+    // Y precision follows peak−trough variance (one tier per draw).
+    const formatEquityAxis = (value: d3.NumberValue) => {
+      const n = Number(value);
+      if (equityRange < 100) return `$${Math.round(n).toLocaleString('en-US')}`;
+      const k = n / 1000;
+      if (equityRange < 10000) return `$${k.toFixed(1)}k`;
+      return `$${Math.round(k)}k`;
+    };
+
+    const formatDateAxis = (value: Date | d3.NumberValue) => {
+      const date = value instanceof Date ? value : new Date(value.valueOf());
+      return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+    };
+
+    const styleAxis = (selection: d3.Selection<SVGGElement, unknown, null, undefined>) => {
+      selection.select('.domain').attr('stroke', inkMuted).attr('stroke-width', 1);
+      selection.selectAll('.tick line').attr('stroke', inkMuted).attr('stroke-width', 1);
+      selection
+        .selectAll('.tick text')
+        .attr('fill', inkMuted)
+        .attr('font-size', '11px')
+        .attr('font-family', rootStyles.getPropertyValue('--font-body').trim() || 'system-ui, sans-serif');
+    };
+
+    const xAxis = d3.axisBottom(xScale).ticks(xTickCount).tickFormat(formatDateAxis);
+    const yAxis = d3.axisLeft(yScale).ticks(yTickCount).tickFormat(formatEquityAxis);
+
+    g.append('g')
+      .attr('transform', 'translate(0,' + h + ')')
+      .call(xAxis)
+      .call(styleAxis);
+    g.append('g').call(yAxis).call(styleAxis);
 
     const profit = timeline[timeline.length - 1].equity - timeline[0].equity;
     const color = profit >= 0 ? positiveColor : negativeColor;
@@ -94,7 +121,7 @@ const Graph = (props: props) => {
         return yScale(d.equity);
       })
       .x(function (d: any) {
-        return xScale(getDateDifference(initialDate, new Date(d.date)));
+        return xScale(new Date(d.date));
       });
 
     // line graph
@@ -108,6 +135,8 @@ const Graph = (props: props) => {
     // tooltip scoped to the chart container instead of document.body, so it
     // is positioned/cleaned up relative to this component rather than leaking
     // into the page body.
+    const TOOLTIP_OFFSET_PX = -24;
+    const TOOLTIP_OFFSET_PX_LEFT = 12;
     const tooltip = d3.select(containerRef.current).append('div').attr('class', 'graph-tooltip');
 
     // hidden circles make the tooltip hover target easier to hit
@@ -117,7 +146,7 @@ const Graph = (props: props) => {
       .append('circle')
       .attr('class', 'point')
       .style('opacity', 0)
-      .attr('cx', (d: any) => xScale(getDateDifference(initialDate, new Date(d.date))))
+      .attr('cx', (d: any) => xScale(new Date(d.date)))
       .attr('cy', (d: any) => yScale(d.equity))
       .attr('r', 16)
       .on('mouseover', (_event, d: any) => {
@@ -125,8 +154,8 @@ const Graph = (props: props) => {
         const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(cur);
         tooltip
           .text(`$${Number(d.equity).toFixed(2)} · ${month} ${cur.getDate()}, ${cur.getFullYear()}`)
-          .style('left', `${margin.left + xScale(getDateDifference(initialDate, new Date(d.date)))}px`)
-          .style('top', `${margin.top + yScale(d.equity) - 32}px`)
+          .style('left', `${margin.left + xScale(new Date(d.date)) + TOOLTIP_OFFSET_PX_LEFT}px`)
+          .style('top', `${margin.top + yScale(d.equity) - TOOLTIP_OFFSET_PX}px`)
           .style('opacity', 1);
       })
       .on('mouseout', () => tooltip.style('opacity', 0));
